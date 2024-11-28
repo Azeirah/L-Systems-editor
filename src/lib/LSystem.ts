@@ -7,8 +7,8 @@ interface LSystemGrammar {
     rules: [predecessor, successor][];
 }
 
-export function deriveIterations({root, iterations, rules}: LSystemGrammar): Record<number, string> {
-    const derivations: Record<number, string> = {};
+export function deriveIterations({root, iterations, rules}: LSystemGrammar): string[] {
+    const derivations: string[] = [];
     let accumulation = root;
 
     derivations[0] = root;
