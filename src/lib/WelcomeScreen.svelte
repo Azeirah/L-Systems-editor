@@ -15,10 +15,6 @@
     }
 </style>
 
-<script>
-
-</script>
-
 <div id="welcome-screen">
     <blockquote
             cite="https://tinlizzie.org/IA/index.php/An_Interview_with_Dr._Alan_Kay_(1991)#:~:text=useful%20or%20very%20beautiful">

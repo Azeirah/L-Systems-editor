@@ -1,104 +1,32 @@
 <script lang="ts">
+    import {Turtle} from "./Turtle";
+
     let canvas: HTMLCanvasElement | undefined = $state();
 
     let {lsystem} = $props();
 
-    class Turtle {
-        private ctx: CanvasRenderingContext2D;
-        private x: number;
-        private y: number;
-        private angle: number;
-        private penState: boolean = false;
-        private memory: {x: number, y: number, angle: number}[] = [];
+    let startPos = $state({x: 0, y: 0})
+    let dragging = $state(false)
 
+    $effect(() => {
+        if (canvas) {
+            const container = canvas.parentElement!
+            canvas.width = container.clientWidth
+            canvas.height = container.clientHeight
 
-        constructor(ctx: CanvasRenderingContext2D, startX: number, startY: number) {
-            this.ctx = ctx;
-            this.x = startX;
-            this.y = startY;
-            this.angle = -90;
-            this.penState = true;
-            this.ctx.lineWidth = 1;
-            this.ctx.strokeStyle = '#000000';
-
-            // Start position
-            this.ctx.beginPath();
-            this.ctx.moveTo(this.x, this.y);
+            window.addEventListener('resize', () => {
+                canvas!.width = container.clientWidth
+                canvas!.height = container.clientHeight
+            })
         }
-
-        // Move forward by specified distance
-        forward(distance: number) {
-            const newX = this.x + distance * Math.cos(this.angle * Math.PI / 180);
-            const newY = this.y + distance * Math.sin(this.angle * Math.PI / 180);
-
-            if (this.penState) {
-                this.ctx.lineTo(newX, newY);
-                this.ctx.stroke();
-            } else {
-                this.ctx.moveTo(newX, newY);
-            }
-
-            this.x = newX;
-            this.y = newY;
-        }
-
-        // Turn right by specified angle in degrees
-        right(angle: number) {
-            this.angle = (this.angle + angle) % 360;
-        }
-
-        // Turn left by specified angle in degrees
-        left(angle: number) {
-            this.angle = (this.angle - angle) % 360;
-        }
-
-        // Lift the pen up (stop drawing)
-        penUp() {
-            this.penState = false;
-        }
-
-        push() {
-            this.memory.push({x: this.x, y: this.y, angle: this.angle})
-            console.log(JSON.stringify(this.memory, null, 2))
-        }
-
-        pop() {
-            if (this.memory.length === 0) {
-                throw new Error("Unbalanced stack!")
-            }
-            const {x, y, angle} = this.memory.pop()!
-
-            this.x = x
-            this.y = y
-            this.angle = angle
-
-            this.ctx.moveTo(this.x, this.y)
-        }
-
-        // Put the pen down (start drawing)
-        penDown() {
-            this.penState = true;
-        }
-
-        // Set the pen color
-        setColor(color: string) {
-            this.ctx.strokeStyle = color;
-        }
-
-        // Set the pen width
-        setWidth(width: number) {
-            this.ctx.lineWidth = width;
-        }
-    }
+    })
 
     $effect(() => {
         if (canvas) {
             const ctx: CanvasRenderingContext2D = canvas.getContext('2d')!
-            let turtle = new Turtle(ctx, ctx.canvas.width / 2, ctx.canvas.height - 16)
+            let turtle = new Turtle(ctx, ctx.canvas.width / 2 + startPos.x, ctx.canvas.height - 16 + startPos.y)
 
             ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height)
-
-            console.log(lsystem)
 
             for (let i of lsystem) {
                 if (i === "F") {
@@ -117,4 +45,17 @@
     })
 </script>
 
-<canvas bind:this={canvas}></canvas>
+<svelte:window on:mousemove={(e) => {
+    if (dragging) {
+        startPos.x += e.movementX
+        startPos.y += e.movementY
+    }
+}}></svelte:window>
+
+<canvas bind:this={canvas} on:mousedown={(e) => dragging = true} on:mouseup={(e) => dragging = false}></canvas>
+
+<style>
+    canvas {
+        background: white;
+    }
+</style>

@@ -7,10 +7,10 @@
     type predecessor = string;
     type successor = string;
 
-    let root = $state("X");
+    let root = $state("-X");
     let iterations = $state(2);
     let angle = $state(15);
-    let rules: [predecessor, successor][] = $state([["X", "X[-X][+X]"]]);
+    let rules: [predecessor, successor][] = $state([["F", "FF"], ["X", "F+[[X]-X]-F[-FX]+X"]]);
 
     let result = $derived(deriveIterations({root, iterations, rules}))
 
@@ -39,52 +39,56 @@
             <WelcomeScreen />
         </div>
     {:else}
-        <form action="javascript:void(0);" transition:blur>
-            <label for="iterations">Iterations</label>
-            <input type="number" bind:value={iterations}>
+        <div class="editor">
+            <div style="grid-area: r">
+                <LSystemCanvasRenderer lsystem={result[result.length - 1]} />
+            </div>
 
-            <label for="angle">Angle</label>
-            <input type="number" id="angle" bind:value={angle}>
+            <form action="javascript:void(0);" style="grid-area: s" transition:blur>
+                <label for="iterations">Iterations</label>
+                <input type="number" bind:value={iterations}>
 
-            <!--
+                <label for="angle">Angle</label>
+                <input type="number" id="angle" bind:value={angle}>
 
-            ω (start, axiom or initiator) is a string of symbols from V defining the initial state of the system
+                <!--
 
-            -->
-            <label for="Root">Root</label>
-            <input type="text" name="Root" id="Root" bind:value={root}>
+                ω (start, axiom or initiator) is a string of symbols from V defining the initial state of the system
 
-            <!--
+                -->
+                <label for="Root">Root</label>
+                <input type="text" name="Root" id="Root" bind:value={root}>
 
-            P is a set of production rules or productions defining the way variables can be replaced with combinations of constants and other variables.
-            A production consists of two strings, the predecessor and the successor.
-            For any symbol A which is a member of the set V which does not appear on the left hand side of a production in P, the identity production A → A is assumed;
-              these symbols are called constants or terminals. (See Law of identity).
+                <!--
 
-            -->
-            <label for="rules">Rules</label>
-            <fieldset id="rules">
-                {#each rules as rule}
-                    <div>
-                        <input type="text" bind:value={rule[0]}>
-                        →
-                        <input type="text" bind:value={rule[1]}>
-                    </div>
-                {/each}
+                P is a set of production rules or productions defining the way variables can be replaced with combinations of constants and other variables.
+                A production consists of two strings, the predecessor and the successor.
+                For any symbol A which is a member of the set V which does not appear on the left hand side of a production in P, the identity production A → A is assumed;
+                  these symbols are called constants or terminals. (See Law of identity).
 
-                <button id="add-rule" onclick={() => rules.push(["", ""])}>+</button>
-            </fieldset>
+                -->
+                <label for="rules">Rules</label>
+                <fieldset id="rules">
+                    {#each rules as rule}
+                        <div>
+                            <input type="text" bind:value={rule[0]}>
+                            →
+                            <input type="text" bind:value={rule[1]}>
+                        </div>
+                    {/each}
 
-            <!--
+                    <button id="add-rule" onclick={() => rules.push(["", ""])}>+</button>
+                </fieldset>
 
-            V (the alphabet) is a set of symbols containing both elements that can be replaced (variables) and those which cannot be replaced ("constants" or "terminals")
+                <!--
 
-            -->
-            <label title="The alphabet is..." for="alphabet">Alphabet</label>
-            <span id="alphabet">{alphabet}</span>
-        </form>
+                V (the alphabet) is a set of symbols containing both elements that can be replaced (variables) and those which cannot be replaced ("constants" or "terminals")
 
-        <LSystemCanvasRenderer lsystem={result[result.length - 1]} />
+                -->
+                <label title="The alphabet is..." for="alphabet">Alphabet</label>
+                <span id="alphabet">{alphabet}</span>
+            </form>
+        </div>
 
 <!--        <div class="timeline">-->
 <!--            <input id="timeline" type="range" min="0" max={iterations - 1} list="timeline-iterations"/>-->
@@ -98,14 +102,22 @@
 </main>
 
 <style>
-    .timeline {
-        position: absolute;
-        left: 16px;
-        bottom: 16px;
+    /*.timeline {*/
+    /*    position: absolute;*/
+    /*    left: 16px;*/
+    /*    bottom: 16px;*/
 
-        input[type='range'] {
-            width: calc(100vw - 32px);
-        }
+    /*    input[type='range'] {*/
+    /*        width: calc(100vw - 32px);*/
+    /*    }*/
+    /*}*/
+
+    .editor {
+        height: calc(100vh - 64px);
+        display: grid;
+        grid-template:
+                "r r" 1fr
+                "s s" auto;
     }
 
     form {
