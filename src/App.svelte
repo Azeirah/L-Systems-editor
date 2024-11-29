@@ -44,6 +44,8 @@
 
                 <label for="angle">Angle</label>
                 <input type="number" id="angle" bind:value={angle}>
+                <label for="length">Length</label>
+                <input type="number" id="length" bind:value={length}>
 
                 <!--
 
