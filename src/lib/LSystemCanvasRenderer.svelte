@@ -3,7 +3,7 @@
 
     let canvas: HTMLCanvasElement | undefined = $state();
 
-    let {lsystem} = $props();
+    let {lsystem, parameters} = $props();
 
     let startPos = $state({x: 0, y: 0})
     let dragging = $state(false)

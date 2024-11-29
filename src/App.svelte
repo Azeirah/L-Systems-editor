@@ -1,6 +1,8 @@
 <script lang="ts">
     import {blur} from "svelte/transition";
     import {deriveIterations} from "./lib/LSystem";
+    import {unique_characters_in_string} from "./lib/stringUtililities";
+
     import WelcomeScreen from "./lib/WelcomeScreen.svelte";
     import LSystemCanvasRenderer from "./lib/LSystemCanvasRenderer.svelte";
 
@@ -10,23 +12,12 @@
     let root = $state("-X");
     let iterations = $state(2);
     let angle = $state(15);
+    let length = $state(4);
     let rules: [predecessor, successor][] = $state([["F", "FF"], ["X", "F+[[X]-X]-F[-FX]+X"]]);
 
     let result = $derived(deriveIterations({root, iterations, rules}))
 
-    let alphabet = $derived.by(() => {
-        const unique_characters_in_string = (input: string) => {
-            const chars = new Set();
-
-            for (let char of input) {
-                chars.add(char);
-            }
-
-            return Array.from(chars).join("");
-        }
-
-        return unique_characters_in_string([root, ...rules.flatMap((value) => [value[0], value[1]])].map(unique_characters_in_string).join(""))
-    })
+    let alphabet = $derived( unique_characters_in_string([root, ...rules.flat()].map(unique_characters_in_string).join("")) )
 
     let onSplash = $state(true)
 </script>
@@ -41,7 +32,10 @@
     {:else}
         <div class="editor">
             <div style="grid-area: r">
-                <LSystemCanvasRenderer lsystem={result[result.length - 1]} />
+                <LSystemCanvasRenderer lsystem={result[result.length - 1]} parameters={{
+                    angle,
+                    length
+                }} />
             </div>
 
             <form action="javascript:void(0);" style="grid-area: s" transition:blur>
