@@ -30,11 +30,11 @@
 
             for (let i of lsystem) {
                 if (i === "F") {
-                    turtle.forward(4)
+                    turtle.forward(parameters.length)
                 } else if (i === "-") {
-                    turtle.right(20)
+                    turtle.right(parameters.angle)
                 } else if (i === "+") {
-                    turtle.left(20)
+                    turtle.left(parameters.angle)
                 } else if (i === "[") {
                     turtle.push()
                 } else if (i === "]") {
