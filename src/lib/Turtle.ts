@@ -17,7 +17,6 @@ export class Turtle {
         this.ctx.strokeStyle = '#000000';
 
         // Start position
-        this.ctx.beginPath();
         this.ctx.moveTo(this.x, this.y);
     }
 
@@ -26,12 +25,11 @@ export class Turtle {
         const newX = this.x + distance * Math.cos(this.angle * Math.PI / 180);
         const newY = this.y + distance * Math.sin(this.angle * Math.PI / 180);
 
-        if (this.penState) {
-            this.ctx.lineTo(newX, newY);
-            this.ctx.stroke();
-        } else {
-            this.ctx.moveTo(newX, newY);
-        }
+        this.ctx.beginPath()
+        this.ctx.moveTo(this.x, this.y);
+        this.ctx.lineTo(newX, newY)
+        this.ctx.stroke()
+        this.ctx.closePath()
 
         this.x = newX;
         this.y = newY;
@@ -54,7 +52,6 @@ export class Turtle {
 
     push() {
         this.memory.push({x: this.x, y: this.y, angle: this.angle})
-        console.log(JSON.stringify(this.memory, null, 2))
     }
 
     pop() {

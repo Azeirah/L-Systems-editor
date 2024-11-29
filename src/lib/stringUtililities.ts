@@ -5,5 +5,5 @@ export const unique_characters_in_string = (input: string) => {
         chars.add(char);
     }
 
-    return Array.from(chars).join("");
+    return Array.from(chars).sort().join("");
 }

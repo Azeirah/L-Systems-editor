@@ -6,6 +6,9 @@
     import WelcomeScreen from "./lib/WelcomeScreen.svelte";
     import LSystemCanvasRenderer from "./lib/LSystemCanvasRenderer.svelte";
 
+    import CodeMirror from "svelte-codemirror-editor";
+    import {javascript} from "@codemirror/lang-javascript";
+
     type predecessor = string;
     type successor = string;
 
@@ -19,7 +22,9 @@
 
     let alphabet = $derived( unique_characters_in_string([root, ...rules.flat()].map(unique_characters_in_string).join("")) )
 
-    let onSplash = $state(true)
+    let sideEffects = $state({})
+
+    let onSplash = $state(false)
 </script>
 
 <svelte:window on:click={() =>{onSplash=false}}/>
@@ -35,7 +40,7 @@
                 <LSystemCanvasRenderer lsystem={result[result.length - 1]} parameters={{
                     angle,
                     length
-                }} />
+                }} sideEffects={sideEffects} />
             </div>
 
             <form action="javascript:void(0);" style="grid-area: s" transition:blur>
@@ -82,6 +87,15 @@
 
                 -->
                 <label title="The alphabet is..." for="alphabet">Alphabet</label>
+                <fieldset>
+                    {#each alphabet as instruction, index}
+                        <details>
+                            <summary>effects for {instruction}</summary>
+
+                            <CodeMirror bind:value={sideEffects[instruction]} lang={javascript()}/>
+                        </details>
+                    {/each}
+                </fieldset>
                 <span id="alphabet">{alphabet}</span>
             </form>
         </div>
@@ -124,5 +138,25 @@
 
     #rules {
         display: subgrid;
+        & input:first-child {
+            width: 3rem;
+        }
+    }
+
+    details {
+        border: 1px solid #aaa;
+        border-radius: 4px;
+        margin: 8px 0;
+        padding: 0.5em 0.5em 0;
+    }
+
+    summary {
+        font-weight: bold;
+        margin: -0.5em -0.5em 0;
+        padding: 0.5em;
+    }
+
+    details[open] {
+        padding: 0.5em;
     }
 </style>
