@@ -3,10 +3,26 @@
 
     let canvas: HTMLCanvasElement | undefined = $state();
 
-    let {lsystem, parameters, sideEffects} = $props();
+    let {lsystem: LSystem, parameters, sideEffects} = $props();
 
     let startPos = $state({x: 0, y: 0})
     let dragging = $state(false)
+
+    function getMaxDepth(str) {
+        let depth = 0;
+        let maxDepth = 0;
+
+        for (let char of str) {
+            if (char === '[') {
+                depth++;
+                maxDepth = Math.max(maxDepth, depth);
+            }
+            else if (char === ']') {
+                depth--;
+            }
+        }
+        return maxDepth;
+    }
 
     $effect(() => {
         if (canvas) {
@@ -25,8 +41,16 @@
         if (canvas) {
             const ctx: CanvasRenderingContext2D = canvas.getContext('2d')!
             let turtle = new Turtle(ctx, ctx.canvas.width / 2 + startPos.x, ctx.canvas.height - 16 + startPos.y)
+            const lsystem = {
+                length: LSystem.length,
+                current: 0,
+                depth: 0,
+                maxDepth: getMaxDepth(LSystem)
+            }
 
-            const turtleEval = (instruction: string) => {
+            const turtleEval = (instruction: string, idx: number) => {
+                lsystem.current = idx
+                lsystem.depth = turtle.readDepth()
                 if (instruction in sideEffects) {
                     eval(sideEffects[instruction]);
                 }
@@ -35,7 +59,11 @@
             ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height)
             ctx.translate(0.5, 0.5)
 
-            for (let i of lsystem) {
+            console.log(LSystem)
+
+            for (let idx = 0; idx < LSystem.length; idx++) {
+                let i = LSystem[idx]
+                turtleEval(i, idx)
                 if (i === "F") {
                     turtle.forward(parameters.length)
                 } else if (i === "-") {
@@ -47,7 +75,6 @@
                 } else if (i === "]") {
                     turtle.pop()
                 }
-                turtleEval(i)
             }
 
             ctx.translate(-0.5, -0.5)

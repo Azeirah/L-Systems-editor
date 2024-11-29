@@ -20,6 +20,10 @@ export class Turtle {
         this.ctx.moveTo(this.x, this.y);
     }
 
+    readDepth() {
+        return this.memory.length;
+    }
+
     // Move forward by specified distance
     forward(distance: number) {
         const newX = this.x + distance * Math.cos(this.angle * Math.PI / 180);

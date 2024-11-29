@@ -90,7 +90,41 @@
                 <fieldset>
                     {#each alphabet as instruction, index}
                         <details>
-                            <summary>effects for {instruction}</summary>
+                            <summary onclick={() => {
+                                if (sideEffects[instruction].length === 0) {
+                                    sideEffects[instruction] = `/*
+You can modify the drawing process here!
+
+Available variables:
+lsystem.length      length of the total lsystem
+lsystem.system      the lsystem produced by your rules
+lsystem.current     the index of the current instruction when this code is evaluated
+lsystem.depth       a number corresponding to how "deep" you are in the tree.
+                    for example. The trunk = 0, first branches are 1, second branches are 2 etc...
+lsystem.maxDepth    the deepest the branches in your lsystem go at maximum.
+
+Moving the turtle:
+turtle.forward(10)
+
+Rotating the turtle, uses degrees, not radians:
+turtle.left(10)
+turtle.right(10)
+
+Changing the color of the turtle:
+turtle.setColor("green")
+
+Changing the width of the line:
+turtle.setWidth(2)
+
+Try some stuff, here are various examples!
+turtle.setWidth(lsystem.current / lsystem.length)
+turtle.setWidth(lsystem.depth)
+turtle.setColor(\`rgb(\${lsystem.depth * 25}, 0, 0)\`)
+*/
+
+`
+                                }
+                            }}>effects for {instruction}</summary>
 
                             <CodeMirror bind:value={sideEffects[instruction]} lang={javascript()}/>
                         </details>
