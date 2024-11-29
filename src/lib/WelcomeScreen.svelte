@@ -1,6 +1,6 @@
 <style>
     #welcome-screen {
-        position: absolute;
+        position: sticky;
         width: 100vw;
         height: 100vh;
         left: 0;
