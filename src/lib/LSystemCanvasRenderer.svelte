@@ -26,7 +26,9 @@
             const ctx: CanvasRenderingContext2D = canvas.getContext('2d')!
             let turtle = new Turtle(ctx, ctx.canvas.width / 2 + startPos.x, ctx.canvas.height - 16 + startPos.y)
 
+
             ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height)
+            ctx.translate(0.5, 0.5)
 
             for (let i of lsystem) {
                 if (i === "F") {
@@ -41,6 +43,8 @@
                     turtle.pop()
                 }
             }
+
+            ctx.translate(-0.5, -0.5)
         }
     })
 </script>
