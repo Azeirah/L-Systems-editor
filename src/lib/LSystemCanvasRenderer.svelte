@@ -43,6 +43,7 @@
         if (canvas) {
             let step_size = parameters.length
             let angle = parameters.angle
+            let color = parameters.color;
 
             const ctx: CanvasRenderingContext2D = canvas.getContext('2d')!
             let turtle = new Turtle(ctx, ctx.canvas.width / 2 + startPos.x, ctx.canvas.height - 16 + startPos.y)
@@ -51,6 +52,7 @@
             // ctx.translate(0.5, 0.5)
 
             for (let idx = 0; idx < lsystem.length; idx++) {
+                turtle.setColor(color)
                 let i = lsystem[idx]
                 if (i === "F") {
                     turtle.forward(step_size)
