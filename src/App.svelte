@@ -5,6 +5,7 @@
 
     import WelcomeScreen from "./lib/WelcomeScreen.svelte";
     import LSystemCanvasRenderer from "./lib/LSystemCanvasRenderer.svelte";
+    import {examples} from "./lsystem_examples";
 
     type predecessor = string;
     type successor = string;
@@ -95,8 +96,23 @@
                 -->
                 <fieldset id="alphabet">
                     <legend>Examples</legend>
-                    <select name="examples" id="examples">
-                        <option value="leaf">L-System Leaf</option>
+                    <select name="examples" id="examples" onchange={(e) => {
+                        const chosen = e.target.value;
+                        const config = examples[chosen]
+
+                        rules = config.rules
+                        root = config.root
+
+                        angle = config.angle
+                        length = config.length
+                        length_factor = config.length_factor
+                        iterations = config.iterations
+
+
+                    }}>
+                        {#each Object.entries(examples) as [name, config], index}
+                            <option value={name}>{name}</option>
+                        {/each}
                     </select>
                 </fieldset>
             </div>
