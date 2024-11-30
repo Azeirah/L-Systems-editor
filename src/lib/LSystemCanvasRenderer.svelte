@@ -48,13 +48,18 @@
             let turtle = new Turtle(ctx, ctx.canvas.width / 2 + startPos.x, ctx.canvas.height - 16 + startPos.y)
 
             ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height)
-            ctx.translate(0.5, 0.5)
+            // ctx.translate(0.5, 0.5)
 
             for (let idx = 0; idx < lsystem.length; idx++) {
                 let i = lsystem[idx]
                 if (i === "F") {
                     turtle.forward(step_size)
-                } else if (i === "-") {
+                } else if (i === "f") {
+                    turtle.penUp()
+                    turtle.forward(step_size)
+                    turtle.penDown()
+                }
+                else if (i === "-") {
                     turtle.right(angle)
                 } else if (i === "+") {
                     turtle.left(angle)
@@ -69,7 +74,7 @@
                 }
             }
 
-            ctx.translate(-0.5, -0.5)
+            // ctx.translate(-0.5, -0.5)
         }
     })
 </script>

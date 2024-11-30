@@ -48,13 +48,13 @@
                     <label for="angle">Angle</label>
                     <input type="number" id="angle" bind:value={angle}>
                     <label for="length">Length</label>
-                    <input type="number" id="length" bind:value={length}>
+                    <input type="number" id="length" bind:value={length} min="1" step="1" max="10">
                     <label for="length_factor">Length factor</label>
-                    <input type="number" id="length_factor" bind:value={length_factor}>
+                    <input type="number" id="length_factor" bind:value={length_factor} min="1" max="2" step="0.01">
                 </fieldset>
 
                 <fieldset id="definition">
-                    <legend>L-System definition</legend>
+                    <legend>L-System</legend>
 
                     <label for="iterations">Iterations</label>
                     <input type="number" bind:value={iterations}>
@@ -77,7 +77,7 @@
                     <label for="rules">Rules</label>
                     <div>
                         {#each rules as rule, index}
-                            <div>
+                            <div class="rule">
                                 <input type="text" bind:value={rule[0]}>
                                 →
                                 <input type="text" bind:value={rule[1]}>
@@ -115,47 +115,26 @@
 
     .configuration {
         display: grid;
-        grid-template-columns: max-content 1fr;
+        grid-template-columns: repeat(12, 1fr);
         gap: 8px;
 
         & #parameters {
-            display: grid;
-            grid-template-columns: min-content 1fr;
-            grid-template-rows: repeat(3, min-content);
+            display: subgrid;
             gap: 8px;
         }
 
         & #definition {
-            display: grid;
-            grid-template-columns: min-content 1fr;
-            grid-template-rows: repeat(3, min-content);
+            display: subgrid;
             gap: 8px;
 
             & input:first-child {
-                width: 3rem;
+                width: 2rem;
             }
         }
-    }
 
-    .configuration {
-        display: grid;
-        grid-template-columns: 1fr 1fr 1fr;
-    }
-
-    details {
-        border: 1px solid #aaa;
-        border-radius: 4px;
-        margin: 8px 0;
-        padding: 0.5em 0.5em 0;
-    }
-
-    summary {
-        font-weight: bold;
-        margin: -0.5em -0.5em 0;
-        padding: 0.5em;
-    }
-
-    details[open] {
-        padding: 0.5em;
+        .rule {
+            display: flex;
+            gap: 4px;
+        }
     }
 </style>
