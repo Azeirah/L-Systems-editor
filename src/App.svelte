@@ -107,8 +107,6 @@
                         length = config.length
                         length_factor = config.length_factor
                         iterations = config.iterations
-
-
                     }}>
                         {#each Object.entries(examples) as [name, config], index}
                             <option value={name}>{name}</option>
@@ -135,12 +133,14 @@
         gap: 8px;
 
         & #parameters {
-            display: subgrid;
+            display: grid;
+            grid-template-columns: min-content min-content;
             gap: 8px;
         }
 
         & #definition {
-            display: subgrid;
+            display: grid;
+            grid-template-columns: min-content;
             gap: 8px;
 
             & input:first-child {
