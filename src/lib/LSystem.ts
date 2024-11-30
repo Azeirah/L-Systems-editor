@@ -1,11 +1,4 @@
-type predecessor = string;
-type successor = string;
-
-interface LSystemGrammar {
-    root: string;
-    iterations: number;
-    rules: [predecessor, successor][];
-}
+import type {LSystemGrammar} from "../types/LSystems";
 
 export function deriveIterations({root, iterations, rules}: LSystemGrammar): string[] {
     const derivations: string[] = [];
