@@ -1,4 +1,6 @@
 <script lang="ts">
+
+
     import {blur} from "svelte/transition";
     import {deriveIterations} from "./lib/LSystem";
     import {unique_characters_in_string} from "./lib/stringUtililities";
@@ -13,7 +15,7 @@
     type successor = string;
 
     let root = $state("-X");
-    let iterations = $state(2);
+    let iterations = $state(4);
     let angle = $state(15);
     let length = $state(4);
     let rules: [predecessor, successor][] = $state([["F", "FF"], ["X", "F+[[X]-X]-F[-FX]+X"]]);
@@ -27,7 +29,7 @@
     let onSplash = $state(false)
 </script>
 
-<svelte:window on:click={() =>{onSplash=false}}/>
+<svelte:window onclick={() =>{onSplash=false}}/>
 
 <main>
     {#if onSplash}
@@ -43,51 +45,59 @@
                 }} sideEffects={sideEffects}/>
             </div>
 
-            <form action="javascript:void(0);" style="grid-area: s" transition:blur>
-                <label for="iterations">Iterations</label>
-                <input type="number" bind:value={iterations}>
-
-                <label for="angle">Angle</label>
-                <input type="number" id="angle" bind:value={angle}>
-                <label for="length">Length</label>
-                <input type="number" id="length" bind:value={length}>
-
-                <!--
-
-                ω (start, axiom or initiator) is a string of symbols from V defining the initial state of the system
-
-                -->
-                <label for="Root">Root</label>
-                <input type="text" name="Root" id="Root" bind:value={root}>
-
-                <!--
-
-                P is a set of production rules or productions defining the way variables can be replaced with combinations of constants and other variables.
-                A production consists of two strings, the predecessor and the successor.
-                For any symbol A which is a member of the set V which does not appear on the left hand side of a production in P, the identity production A → A is assumed;
-                  these symbols are called constants or terminals. (See Law of identity).
-
-                -->
-                <label for="rules">Rules</label>
-                <fieldset id="rules">
-                    {#each rules as rule}
-                        <div>
-                            <input type="text" bind:value={rule[0]}>
-                            →
-                            <input type="text" bind:value={rule[1]}>
-                        </div>
-                    {/each}
-
-                    <button id="add-rule" onclick={() => rules.push(["", ""])}>+</button>
+            <div class="configuration" style="grid-area: s" transition:blur>
+                <fieldset id="parameters">
+                    <legend>L-system parameters</legend>
+                    <label for="angle">Angle</label>
+                    <input type="number" id="angle" bind:value={angle}>
+                    <label for="length">Length</label>
+                    <input type="number" id="length" bind:value={length}>
                 </fieldset>
+
+                <fieldset id="definition">
+                    <legend>L-System definition</legend>
+
+                    <label for="iterations">Iterations</label>
+                    <input type="number" bind:value={iterations}>
+                    <!--
+
+                    ω (start, axiom or initiator) is a string of symbols from V defining the initial state of the system
+
+                    -->
+                    <label for="Root">Root</label>
+                    <input type="text" name="Root" id="Root" bind:value={root}>
+
+                    <!--
+
+                    P is a set of production rules or productions defining the way variables can be replaced with combinations of constants and other variables.
+                    A production consists of two strings, the predecessor and the successor.
+                    For any symbol A which is a member of the set V which does not appear on the left hand side of a production in P, the identity production A → A is assumed;
+                      these symbols are called constants or terminals. (See Law of identity).
+
+                    -->
+                    <label for="rules">Rules</label>
+                    <div>
+                        {#each rules as rule, index}
+                            <div>
+                                <input type="text" bind:value={rule[0]}>
+                                →
+                                <input type="text" bind:value={rule[1]}>
+                                <button onclick={() => rules.splice(index, 1)}>✕</button>
+                            </div>
+                        {/each}
+                        <button id="add-rule" onclick={() => rules.push(["", ""])}>+</button>
+                    </div>
+
+                </fieldset>
+
 
                 <!--
 
                 V (the alphabet) is a set of symbols containing both elements that can be replaced (variables) and those which cannot be replaced ("constants" or "terminals")
 
                 -->
-                <label title="The alphabet is..." for="alphabet">Alphabet</label>
-                <fieldset>
+                <fieldset id="alphabet">
+                    <legend>L-system alphabet</legend>
                     {#each alphabet as instruction, index}
                         <details>
                             <summary onclick={() => {
@@ -126,36 +136,16 @@ turtle.setColor(\`rgb(\${l_system.depth * 25}, 0, 0)\`)
                                 }
                             }}>effects for {instruction}</summary>
 
-                            <CodeMirror bind:value={sideEffects[instruction]} lang={javascript()}/>
+                            <CodeMirror bind:value={sideEffects[instruction]} lang={javascript()} lineWrapping={true} />
                         </details>
                     {/each}
                 </fieldset>
-                <span id="alphabet">{alphabet}</span>
-            </form>
+            </div>
         </div>
-
-        <!--        <div class="timeline">-->
-        <!--            <input id="timeline" type="range" min="0" max={iterations - 1} list="timeline-iterations"/>-->
-        <!--            <datalist id="timeline-iterations">-->
-        <!--                {#each Object.entries(result) as [iteration, derivation]}-->
-        <!--                    <option value={iteration} label={derivation}></option>-->
-        <!--                {/each}-->
-        <!--            </datalist>-->
-        <!--        </div>-->
     {/if}
 </main>
 
 <style>
-    /*.timeline {*/
-    /*    position: absolute;*/
-    /*    left: 16px;*/
-    /*    bottom: 16px;*/
-
-    /*    input[type='range'] {*/
-    /*        width: calc(100vw - 32px);*/
-    /*    }*/
-    /*}*/
-
     .editor {
         height: calc(100vh - 64px);
         display: grid;
@@ -164,18 +154,33 @@ turtle.setColor(\`rgb(\${l_system.depth * 25}, 0, 0)\`)
                 "s s" auto;
     }
 
-    form {
+    .configuration {
         display: grid;
         grid-template-columns: max-content 1fr;
         gap: 8px;
+
+        & #parameters {
+            display: grid;
+            grid-template-columns: min-content 1fr;
+            grid-template-rows: repeat(3, min-content);
+            gap: 8px;
+        }
+
+        & #definition {
+            display: grid;
+            grid-template-columns: min-content 1fr;
+            grid-template-rows: repeat(3, min-content);
+            gap: 8px;
+
+            & input:first-child {
+                width: 3rem;
+            }
+        }
     }
 
-    #rules {
-        display: subgrid;
-
-        & input:first-child {
-            width: 3rem;
-        }
+    .configuration {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
     }
 
     details {
