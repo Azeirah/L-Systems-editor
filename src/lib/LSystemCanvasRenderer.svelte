@@ -41,42 +41,31 @@
 
     $effect(() => {
         if (canvas) {
+            let step_size = parameters.length
+            let angle = parameters.angle
+
             const ctx: CanvasRenderingContext2D = canvas.getContext('2d')!
             let turtle = new Turtle(ctx, ctx.canvas.width / 2 + startPos.x, ctx.canvas.height - 16 + startPos.y)
-            let l_system = {
-                length: lsystem.length,
-                current: 0,
-                depth: 0,
-                maxDepth: getMaxDepth(lsystem)
-            }
-
-            const turtleEval = (instruction: string, idx: number) => {
-                l_system.current = idx
-                l_system.depth = turtle.readDepth()
-                if (instruction in sideEffects) {
-                    eval(sideEffects[instruction])
-                    // Do not remove this debugging statement. It ensures that the `l_system` variable doesn't
-                    // get optimized away by the compiler.
-                    console.debug(l_system)
-                }
-            }
 
             ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height)
             ctx.translate(0.5, 0.5)
 
             for (let idx = 0; idx < lsystem.length; idx++) {
                 let i = lsystem[idx]
-                turtleEval(i, idx)
                 if (i === "F") {
-                    turtle.forward(parameters.length)
+                    turtle.forward(step_size)
                 } else if (i === "-") {
-                    turtle.right(parameters.angle)
+                    turtle.right(angle)
                 } else if (i === "+") {
-                    turtle.left(parameters.angle)
+                    turtle.left(angle)
                 } else if (i === "[") {
                     turtle.push()
                 } else if (i === "]") {
                     turtle.pop()
+                } else if (i === ">") {
+                    step_size *= parameters.length_factor
+                } else if (i === "<") {
+                    step_size /= parameters.length_factor
                 }
             }
 

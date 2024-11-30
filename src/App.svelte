@@ -1,15 +1,10 @@
 <script lang="ts">
-
-
     import {blur} from "svelte/transition";
     import {deriveIterations} from "./lib/LSystem";
     import {unique_characters_in_string} from "./lib/stringUtililities";
 
     import WelcomeScreen from "./lib/WelcomeScreen.svelte";
     import LSystemCanvasRenderer from "./lib/LSystemCanvasRenderer.svelte";
-
-    import CodeMirror from "svelte-codemirror-editor";
-    import {javascript} from "@codemirror/lang-javascript";
 
     type predecessor = string;
     type successor = string;
@@ -18,6 +13,7 @@
     let iterations = $state(4);
     let angle = $state(15);
     let length = $state(4);
+    let length_factor = $state(1);
     let rules: [predecessor, successor][] = $state([["F", "FF"], ["X", "F+[[X]-X]-F[-FX]+X"]]);
 
     let result = $derived(deriveIterations({root, iterations, rules}))
@@ -26,7 +22,7 @@
 
     let sideEffects = $state({})
 
-    let onSplash = $state(false)
+    let onSplash = $state(true)
 </script>
 
 <svelte:window onclick={() =>{onSplash=false}}/>
@@ -41,17 +37,20 @@
             <div style="grid-area: r">
                 <LSystemCanvasRenderer lsystem={result[result.length - 1]} parameters={{
                     angle,
-                    length
+                    length,
+                    length_factor
                 }} sideEffects={sideEffects}/>
             </div>
 
             <div class="configuration" style="grid-area: s" transition:blur>
                 <fieldset id="parameters">
-                    <legend>L-system parameters</legend>
+                    <legend>Drawing parameters</legend>
                     <label for="angle">Angle</label>
                     <input type="number" id="angle" bind:value={angle}>
                     <label for="length">Length</label>
                     <input type="number" id="length" bind:value={length}>
+                    <label for="length_factor">Length factor</label>
+                    <input type="number" id="length_factor" bind:value={length_factor}>
                 </fieldset>
 
                 <fieldset id="definition">
@@ -87,9 +86,7 @@
                         {/each}
                         <button id="add-rule" onclick={() => rules.push(["", ""])}>+</button>
                     </div>
-
                 </fieldset>
-
 
                 <!--
 
@@ -97,48 +94,10 @@
 
                 -->
                 <fieldset id="alphabet">
-                    <legend>L-system alphabet</legend>
-                    {#each alphabet as instruction, index}
-                        <details>
-                            <summary onclick={() => {
-                                if (sideEffects[instruction].length === 0) {
-                                    sideEffects[instruction] = `/*
-You can modify the drawing process here!
-
-Available variables:
-l_system.length      length of the total l_system
-l_system.system      the l_system produced by your rules
-l_system.current     the index of the current instruction when this code is evaluated
-l_system.depth       a number corresponding to how "deep" you are in the tree.
-                    for example. The trunk = 0, first branches are 1, second branches are 2 etc...
-l_system.maxDepth    the deepest the branches in your l_system go at maximum.
-
-Moving the turtle:
-turtle.forward(10)
-
-Rotating the turtle, uses degrees, not radians:
-turtle.left(10)
-turtle.right(10)
-
-Changing the color of the turtle:
-turtle.setColor("green")
-
-Changing the width of the line:
-turtle.setWidth(2)
-
-Try some stuff, here are various examples!
-turtle.setWidth(l_system.current / l_system.length)
-turtle.setWidth(l_system.depth)
-turtle.setColor(\`rgb(\${l_system.depth * 25}, 0, 0)\`)
-*/
-
-`
-                                }
-                            }}>effects for {instruction}</summary>
-
-                            <CodeMirror bind:value={sideEffects[instruction]} lang={javascript()} lineWrapping={true} />
-                        </details>
-                    {/each}
+                    <legend>Examples</legend>
+                    <select name="examples" id="examples">
+                        <option value="leaf">L-System Leaf</option>
+                    </select>
                 </fieldset>
             </div>
         </div>
