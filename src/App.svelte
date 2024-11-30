@@ -20,9 +20,7 @@
 
     let result = $derived(deriveIterations({root, iterations, rules}))
 
-    // let alphabet = $derived(unique_characters_in_string([root, ...rules.flat()].map(unique_characters_in_string).join("")))
-
-    let sideEffects = $state({})
+    let secret = $state("")
 
     let onSplash = $state(true)
 </script>
@@ -41,8 +39,9 @@
                     angle,
                     length,
                     length_factor,
-                    color
-                }} sideEffects={sideEffects}/>
+                    color,
+                    secret
+                }}/>
             </div>
 
             <div class="configuration" style="grid-area: s" transition:blur>
@@ -54,8 +53,8 @@
                     <input type="number" id="length" bind:value={length} min="1" step="1" max="10">
                     <label for="length_factor">Length factor</label>
                     <input type="number" id="length_factor" bind:value={length_factor} min="1" max="2" step="0.01">
-                    <label for="color">Color</label>
-                    <input type="text" id="color" bind:value={color}>
+                    <label for="secret">Secret</label>
+                    <textarea type="text" id="secret" bind:value={secret}></textarea>
                 </fieldset>
 
                 <fieldset id="definition">

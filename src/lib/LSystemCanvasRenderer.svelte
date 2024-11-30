@@ -3,7 +3,7 @@
 
     let canvas: HTMLCanvasElement | undefined = $state()
 
-    let {lsystem, parameters, sideEffects} = $props()
+    let {lsystem, parameters} = $props()
 
     let startPos = $state({x: 0, y: 0})
     let dragging = $state(false)
@@ -45,14 +45,22 @@
             let angle = parameters.angle
             let color = parameters.color;
 
+            const metrics = {
+                depth: 0,
+                maxDepth: getMaxDepth(lsystem)
+            };
+
             const ctx: CanvasRenderingContext2D = canvas.getContext('2d')!
             let turtle = new Turtle(ctx, ctx.canvas.width / 2 + startPos.x, ctx.canvas.height - 16 + startPos.y)
 
             ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height)
-            // ctx.translate(0.5, 0.5)
 
             for (let idx = 0; idx < lsystem.length; idx++) {
                 turtle.setColor(color)
+                if (secret !== "") {
+                    eval(parameters.secret);
+                    console.debug(metrics);
+                }
                 let i = lsystem[idx]
                 if (i === "F") {
                     turtle.forward(step_size)
@@ -66,8 +74,10 @@
                 } else if (i === "+") {
                     turtle.left(angle)
                 } else if (i === "[") {
+                    metrics.depth += 1
                     turtle.push()
                 } else if (i === "]") {
+                    metrics.depth -= 1
                     turtle.pop()
                 } else if (i === ">") {
                     step_size *= parameters.length_factor
@@ -76,7 +86,6 @@
                 }
             }
 
-            // ctx.translate(-0.5, -0.5)
         }
     })
 </script>
