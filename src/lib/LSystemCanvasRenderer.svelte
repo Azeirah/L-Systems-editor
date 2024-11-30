@@ -3,7 +3,7 @@
 
     let canvas: HTMLCanvasElement | undefined = $state();
 
-    let {lsystem: LSystem, parameters, sideEffects} = $props();
+    let {lsystem, parameters, sideEffects} = $props();
 
     let startPos = $state({x: 0, y: 0})
     let dragging = $state(false)
@@ -41,28 +41,29 @@
         if (canvas) {
             const ctx: CanvasRenderingContext2D = canvas.getContext('2d')!
             let turtle = new Turtle(ctx, ctx.canvas.width / 2 + startPos.x, ctx.canvas.height - 16 + startPos.y)
-            const lsystem = {
-                length: LSystem.length,
+            let l_system = {
+                length: lsystem.length,
                 current: 0,
                 depth: 0,
-                maxDepth: getMaxDepth(LSystem)
+                maxDepth: getMaxDepth(lsystem)
             }
 
             const turtleEval = (instruction: string, idx: number) => {
-                lsystem.current = idx
-                lsystem.depth = turtle.readDepth()
+                l_system.current = idx
+                l_system.depth = turtle.readDepth()
                 if (instruction in sideEffects) {
                     eval(sideEffects[instruction]);
+                    // Do not remove this debugging statement. It ensures that the `l_system` variable doesn't
+                    // get optimized away by the compiler.
+                    console.debug(l_system);
                 }
             }
 
             ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height)
             ctx.translate(0.5, 0.5)
 
-            console.log(LSystem)
-
-            for (let idx = 0; idx < LSystem.length; idx++) {
-                let i = LSystem[idx]
+            for (let idx = 0; idx < lsystem.length; idx++) {
+                let i = lsystem[idx]
                 turtleEval(i, idx)
                 if (i === "F") {
                     turtle.forward(parameters.length)
@@ -82,14 +83,14 @@
     })
 </script>
 
-<svelte:window on:mousemove={(e) => {
+<svelte:window onmousemove={(e) => {
     if (dragging) {
         startPos.x += e.movementX
         startPos.y += e.movementY
     }
 }}></svelte:window>
 
-<canvas bind:this={canvas} on:mousedown={(e) => dragging = true} on:mouseup={(e) => dragging = false}></canvas>
+<canvas bind:this={canvas} onmousedown={(e) => dragging = true} onmouseup={(e) => dragging = false}></canvas>
 
 <style>
     canvas {

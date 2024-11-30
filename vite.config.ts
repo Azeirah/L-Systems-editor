@@ -7,4 +7,8 @@ export default defineConfig({
   base: "l-systems",
 
   exclude: ["svelte-codemirror-editor", "codemirror", "@codemirror/language-javascript" /* ... */],
+  build: {
+    minify:false,
+  },
+
 })

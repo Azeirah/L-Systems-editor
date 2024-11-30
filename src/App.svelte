@@ -20,7 +20,7 @@
 
     let result = $derived(deriveIterations({root, iterations, rules}))
 
-    let alphabet = $derived( unique_characters_in_string([root, ...rules.flat()].map(unique_characters_in_string).join("")) )
+    let alphabet = $derived(unique_characters_in_string([root, ...rules.flat()].map(unique_characters_in_string).join("")))
 
     let sideEffects = $state({})
 
@@ -32,7 +32,7 @@
 <main>
     {#if onSplash}
         <div transition:blur>
-            <WelcomeScreen />
+            <WelcomeScreen/>
         </div>
     {:else}
         <div class="editor">
@@ -40,7 +40,7 @@
                 <LSystemCanvasRenderer lsystem={result[result.length - 1]} parameters={{
                     angle,
                     length
-                }} sideEffects={sideEffects} />
+                }} sideEffects={sideEffects}/>
             </div>
 
             <form action="javascript:void(0);" style="grid-area: s" transition:blur>
@@ -96,12 +96,12 @@
 You can modify the drawing process here!
 
 Available variables:
-lsystem.length      length of the total lsystem
-lsystem.system      the lsystem produced by your rules
-lsystem.current     the index of the current instruction when this code is evaluated
-lsystem.depth       a number corresponding to how "deep" you are in the tree.
+l_system.length      length of the total l_system
+l_system.system      the l_system produced by your rules
+l_system.current     the index of the current instruction when this code is evaluated
+l_system.depth       a number corresponding to how "deep" you are in the tree.
                     for example. The trunk = 0, first branches are 1, second branches are 2 etc...
-lsystem.maxDepth    the deepest the branches in your lsystem go at maximum.
+l_system.maxDepth    the deepest the branches in your l_system go at maximum.
 
 Moving the turtle:
 turtle.forward(10)
@@ -117,9 +117,9 @@ Changing the width of the line:
 turtle.setWidth(2)
 
 Try some stuff, here are various examples!
-turtle.setWidth(lsystem.current / lsystem.length)
-turtle.setWidth(lsystem.depth)
-turtle.setColor(\`rgb(\${lsystem.depth * 25}, 0, 0)\`)
+turtle.setWidth(l_system.current / l_system.length)
+turtle.setWidth(l_system.depth)
+turtle.setColor(\`rgb(\${l_system.depth * 25}, 0, 0)\`)
 */
 
 `
@@ -134,14 +134,14 @@ turtle.setColor(\`rgb(\${lsystem.depth * 25}, 0, 0)\`)
             </form>
         </div>
 
-<!--        <div class="timeline">-->
-<!--            <input id="timeline" type="range" min="0" max={iterations - 1} list="timeline-iterations"/>-->
-<!--            <datalist id="timeline-iterations">-->
-<!--                {#each Object.entries(result) as [iteration, derivation]}-->
-<!--                    <option value={iteration} label={derivation}></option>-->
-<!--                {/each}-->
-<!--            </datalist>-->
-<!--        </div>-->
+        <!--        <div class="timeline">-->
+        <!--            <input id="timeline" type="range" min="0" max={iterations - 1} list="timeline-iterations"/>-->
+        <!--            <datalist id="timeline-iterations">-->
+        <!--                {#each Object.entries(result) as [iteration, derivation]}-->
+        <!--                    <option value={iteration} label={derivation}></option>-->
+        <!--                {/each}-->
+        <!--            </datalist>-->
+        <!--        </div>-->
     {/if}
 </main>
 
@@ -172,6 +172,7 @@ turtle.setColor(\`rgb(\${lsystem.depth * 25}, 0, 0)\`)
 
     #rules {
         display: subgrid;
+
         & input:first-child {
             width: 3rem;
         }
