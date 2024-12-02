@@ -18,6 +18,9 @@
           nativeBuildInputs = with pkgs; [
             playwright-driver.browsers
             playwright-test
+            # this package is necessary to run playwright with bun. I really don't know why.
+            # See my comment on the issue: https://github.com/oven-sh/bun/issues/8222#issuecomment-2512722612
+            nodejs_22
           ];
 
           buildInputs = with pkgs; [
@@ -35,7 +38,9 @@ For contact and questions
 
 Quick start tips
 - Run 'bun run dev' to get started with development
-- Run 'bun run test' to open the test environment
+- Testing
+  - Run 'bun run test' to run all tests
+  - Run 'bun run test:ui' to open the test UI
 
 First time?
 - Don't forget to run 'bun install'
