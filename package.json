@@ -7,7 +7,8 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "check": "svelte-check --tsconfig ./tsconfig.json && tsc -p tsconfig.node.json"
+    "check": "svelte-check --tsconfig ./tsconfig.json && tsc -p tsconfig.node.json",
+    "test": "playwright open http://localhost:5173/l-systems"
   },
   "devDependencies": {
     "@sveltejs/vite-plugin-svelte": "^4.0.0",
@@ -20,6 +21,7 @@
   },
   "dependencies": {
     "@codemirror/lang-javascript": "^6.2.2",
-    "svelte-codemirror-editor": "^1.4.1"
+    "svelte-codemirror-editor": "^1.4.1",
+    "@playwright/test": "1.47.0"
   }
 }

@@ -15,24 +15,29 @@
       in
       {
         devShells.default = pkgs.mkShell {
-          buildInputs = with pkgs; [
-            bun
+          nativeBuildInputs = with pkgs; [
             playwright-driver.browsers
             playwright-test
           ];
 
+          buildInputs = with pkgs; [
+            bun
+          ];
+
+          PLAYWRIGHT_BROWSERS_PATH="${pkgs.playwright-driver.browsers}";
+
           shellHook = ''
           echo "Welcome to the l-systems development environment!
 
-                For contact and questions
-                - contact laura at mail@laura.fm
-                - Or visit the github repository https://github.com/Azeirah/L-Systems-editor
+For contact and questions
+- contact laura at mail@laura.fm
+- Or visit the github repository https://github.com/Azeirah/L-Systems-editor
 
-                Quick start tips
-                - Run 'bun run dev' to get started with development
-                - Run 'playwright' to open the test environment
+Quick start tips
+- Run 'bun run dev' to get started with development
+- Run 'bun run test' to open the test environment
 
-                Have fun with the trees :)
+Have fun with nature! :)
           ";
           '';
         };
