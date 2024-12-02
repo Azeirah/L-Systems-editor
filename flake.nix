@@ -37,9 +37,10 @@ Quick start tips
 - Run 'bun run dev' to get started with development
 - Run 'bun run test' to open the test environment
 
-Have fun with nature! :)
-          ";
-          '';
+First time?
+- Don't forget to run 'bun install'
+
+Have fun with nature! :)";'';
         };
       });
 }
