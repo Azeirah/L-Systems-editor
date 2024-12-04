@@ -61,7 +61,7 @@
                     <legend>L-System</legend>
 
                     <label for="iterations">Iterations</label>
-                    <input type="number" bind:value={iterations}>
+                    <input type="number" name="iterations" id="iterations" bind:value={iterations}>
                     <!--
 
                     ω (start, axiom or initiator) is a string of symbols from V defining the initial state of the system

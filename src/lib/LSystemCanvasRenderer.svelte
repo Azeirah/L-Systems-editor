@@ -1,6 +1,16 @@
 <script lang="ts">
     import {Turtle} from "./Turtle"
 
+    type RenderState = {
+        index: number;
+        turtle: Turtle;
+        stepSize: number;
+        metrics: {
+            depth: number;
+            maxDepth: number;
+        }
+    };
+
     let canvas: HTMLCanvasElement | undefined = $state()
 
     let {lsystem, parameters} = $props()
@@ -16,78 +26,125 @@
             if (char === '[') {
                 depth++
                 maxDepth = Math.max(maxDepth, depth)
-            }
-            else if (char === ']') {
+            } else if (char === ']') {
                 depth--
             }
         }
         return maxDepth
     }
 
-    $effect(() => {
-        if (canvas) {
-            const container = canvas.parentElement!
-
-            const setSize = () => {
-                canvas.width = container.clientWidth
-                canvas.height = container.clientHeight - 8
-            }
-            setSize()
-
-            canvas.addEventListener('resize', setSize)
-            window.addEventListener('resize', setSize)
-        }
-    })
-
-    $effect(() => {
-        if (canvas) {
-            let step_size = parameters.length
-            let angle = parameters.angle
-            let color = parameters.color;
-
-            const metrics = {
+    function initRenderState(ctx: CanvasRenderingContext2D, parameters: { length: number }, lsystem: string) {
+        return {
+            index: 0,
+            turtle: new Turtle(ctx, ctx.canvas.width / 2 + startPos.x, ctx.canvas.height - 16 + startPos.y),
+            stepSize: parameters.length,
+            metrics: {
                 depth: 0,
-                maxDepth: getMaxDepth(lsystem)
-            };
+                getMaxDepth: getMaxDepth(lsystem)
+            }
+        }
+    }
 
-            const ctx: CanvasRenderingContext2D = canvas.getContext('2d')!
-            let turtle = new Turtle(ctx, ctx.canvas.width / 2 + startPos.x, ctx.canvas.height - 16 + startPos.y)
+    function processBatch(state: RenderState, lSystem: string, parameters: {
+        length: number
+    }, startTime: number): boolean {
+        const TIME_BUDGET_IN_MS = 12;
 
-            ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height)
-
-            for (let idx = 0; idx < lsystem.length; idx++) {
-                turtle.setColor(color)
-                if (secret !== "") {
-                    eval(parameters.secret);
-                    console.debug(metrics);
-                }
-                let i = lsystem[idx]
-                if (i === "F") {
-                    turtle.forward(step_size)
-                } else if (i === "f") {
-                    turtle.penUp()
-                    turtle.forward(step_size)
-                    turtle.penDown()
-                }
-                else if (i === "-") {
-                    turtle.right(angle)
-                } else if (i === "+") {
-                    turtle.left(angle)
-                } else if (i === "[") {
-                    metrics.depth += 1
-                    turtle.push()
-                } else if (i === "]") {
-                    metrics.depth -= 1
-                    turtle.pop()
-                } else if (i === ">") {
-                    step_size *= parameters.length_factor
-                } else if (i === "<") {
-                    step_size /= parameters.length_factor
-                }
+        while (state.index < lsystem.length) {
+            if (Date.now() - startTime > TIME_BUDGET_IN_MS) {
+                return false;
             }
 
+            const instruction = lsystem[state.index];
+
+            switch (instruction) {
+                case 'F':
+                    state.turtle.setColor(parameters.color);
+                    state.turtle.forward(state.stepSize);
+                    break;
+                case 'f':
+                    state.turtle.setColor(parameters.color);
+                    state.turtle.penUp();
+                    state.turtle.forward(state.stepSize);
+                    state.turtle.penDown();
+                    break;
+                case '-':
+                    state.turtle.right(parameters.angle);
+                    break;
+                case '+':
+                    state.turtle.left(parameters.angle);
+                    break;
+                case '[':
+                    state.metrics.depth += 1;
+                    state.turtle.push();
+                    break;
+                case ']':
+                    state.metrics.depth -= 1;
+                    state.turtle.pop();
+                    break;
+                case '>':
+                    state.stepSize *= parameters.length_factor;
+                    break;
+                case '<':
+                    state.stepSize /= parameters.length_factor;
+                    break;
+            }
+
+            if (parameters.secret !== "") {
+                eval(parameters.secret);
+                console.debug(state.metrics);
+            }
+
+            state.index++;
+        }
+        return true;
+    }
+
+    let renderLoopStarted = false
+    let needsRender = false
+    let renderState = $state<RenderState | null>(null)
+
+    function renderLoop(ctx: CanvasRenderingContext2D) {
+        requestAnimationFrame(() => renderLoop(ctx))
+
+        if (!needsRender || !renderState) return;
+
+        if (renderState.index === 0) {
+            ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height)
+        }
+
+        const startTime = Date.now();
+
+        if (processBatch(renderState, lsystem, parameters, startTime)) {
+            needsRender = false;
+        }
+    }
+
+    $effect(() => {
+        if (!canvas) return;
+
+        const ctx: CanvasRenderingContext2D = canvas.getContext('2d')!
+
+        const container = canvas.parentElement
+        const setSize = () => {
+            canvas.width = container.clientWidth
+            canvas.height = container.clientHeight - 8
+        }
+
+        setSize()
+
+        if (!renderLoopStarted) {
+            renderLoopStarted = true;
+            renderLoop(ctx);
         }
     })
+
+    $effect(() => {
+        if (!canvas) return;
+
+        renderState = initRenderState(canvas.getContext('2d')!, parameters, lsystem)
+        needsRender = true;
+    });
 </script>
 
 <svelte:window onmousemove={(e) => {
@@ -97,7 +154,8 @@
     }
 }}></svelte:window>
 
-<canvas bind:this={canvas} onmousedown={(e) => dragging = true} onmouseup={(e) => dragging = false}></canvas>
+<canvas data-testid="l-systems-canvas-renderer" bind:this={canvas} onmousedown={(e) => dragging = true}
+        onmouseup={(e) => dragging = false}></canvas>
 
 <style>
     canvas {

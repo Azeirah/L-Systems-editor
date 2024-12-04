@@ -23,6 +23,11 @@ class User {
     const canvas = this.page.getByTestId("l-systems-canvas-renderer");
     await expect(canvas).toBeVisible();
   }
+
+  async setLSystemIterationsTo(iterations: number) {
+    const iterationsInput = this.page.getByRole("spinbutton", {name: "iterations"});
+    await iterationsInput.fill(String(iterations));
+  }
 }
 
 test("The application loads", async ({ page }) => {
@@ -39,4 +44,19 @@ test("The application renders", async ({page}) => {
 
   await application.start()
   await user.startApplication();
+});
+
+test("The canvas renderer doesn't hang at high iterations", async ({page}) => {
+  const user = new User(page);
+  const application = new Application(page);
+
+  await application.start()
+  await user.startApplication();
+
+  const startTime = Date.now();
+  await user.setLSystemIterationsTo(7);
+  const endTime = Date.now();
+
+  const renderTime = endTime - startTime;
+  expect(renderTime).toBeLessThan(50);
 });
