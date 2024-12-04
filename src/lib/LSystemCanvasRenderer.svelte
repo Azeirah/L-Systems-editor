@@ -11,12 +11,6 @@
         }
     };
 
-    let canvas: HTMLCanvasElement | undefined = $state()
-
-    let {lsystem, parameters} = $props()
-
-    let startPos = $state({x: 0, y: 0})
-    let dragging = $state(false)
 
     function getMaxDepth(str) {
         let depth = 0
@@ -40,7 +34,7 @@
             stepSize: parameters.length,
             metrics: {
                 depth: 0,
-                getMaxDepth: getMaxDepth(lsystem)
+                maxDepth: getMaxDepth(lsystem)
             }
         }
     }
@@ -100,24 +94,28 @@
         return true;
     }
 
-    let renderLoopStarted = false
-    let needsRender = false
+    let canvas: HTMLCanvasElement | undefined = $state()
+    let {lsystem, parameters} = $props()
+    let startPos = $state({x: 0, y: 0})
+    let dragging = $state(false)
     let renderState = $state<RenderState | null>(null)
 
-    function renderLoop(ctx: CanvasRenderingContext2D) {
-        requestAnimationFrame(() => renderLoop(ctx))
+    let isRendering = false;
+    function setupRenderLoop(ctx: CanvasRenderingContext2D) {
+        if (isRendering) return;
+        isRendering = true;
+        function renderLoop() {
+            requestAnimationFrame(renderLoop)
+            if (!renderState) return;
 
-        if (!needsRender || !renderState) return;
+            if (renderState.index === 0) {
+                ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height)
+            }
 
-        if (renderState.index === 0) {
-            ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height)
+            processBatch(renderState, lsystem, parameters, Date.now())
         }
 
-        const startTime = Date.now();
-
-        if (processBatch(renderState, lsystem, parameters, startTime)) {
-            needsRender = false;
-        }
+        renderLoop()
     }
 
     $effect(() => {
@@ -133,17 +131,13 @@
 
         setSize()
 
-        if (!renderLoopStarted) {
-            renderLoopStarted = true;
-            renderLoop(ctx);
-        }
+        setupRenderLoop(ctx)
     })
 
     $effect(() => {
         if (!canvas) return;
 
         renderState = initRenderState(canvas.getContext('2d')!, parameters, lsystem)
-        needsRender = true;
     });
 </script>
 
