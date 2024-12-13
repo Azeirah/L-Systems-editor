@@ -1,31 +1,43 @@
 <script lang="ts">
     import {blur} from "svelte/transition";
     import {deriveIterations} from "./lib/LSystem";
-    import {unique_characters_in_string} from "./lib/stringUtililities";
 
     import WelcomeScreen from "./lib/WelcomeScreen.svelte";
     import LSystemCanvasRenderer from "./lib/LSystemCanvasRenderer.svelte";
     import {examples} from "./lsystem_examples";
 
-    type predecessor = string;
-    type successor = string;
+    type predecessor = string
+    type successor = string
 
-    let root = $state("-X");
-    let iterations = $state(4);
-    let angle = $state(15);
-    let length = $state(4);
-    let length_factor = $state(1);
-    let rules: [predecessor, successor][] = $state([["F", "FF"], ["X", "F+[[X]-X]-F[-FX]+X"]]);
+    let root = $state("-X")
+    let iterations = $state(4)
+    let angle = $state(15)
+    let length = $state(4)
+    let length_factor = $state(1)
+    let rules: [predecessor, successor][] = $state([["F", "FF"], ["X", "F+[[X]-X]-F[-FX]+X"]])
     let color = $state("black")
+
+    let cheatsheetOverlayActive = $state(false)
 
     let result = $derived(deriveIterations({root, iterations, rules}))
 
     let secret = $state("")
 
-    let onSplash = $state(true)
+    let onSplash = $state(false)
+
+    const toggleCheatsheet = () => {
+        cheatsheetOverlayActive = !cheatsheetOverlayActive
+    }
 </script>
 
-<svelte:window onclick={() =>{onSplash=false}}/>
+<svelte:window onclick={() =>{onSplash=false}} onkeydown={(e) => {
+    switch (e.key) {
+        case "F1":
+        case "?":
+            toggleCheatsheet()
+            break
+    }
+}}/>
 
 <main>
     {#if onSplash}
@@ -43,6 +55,27 @@
                     secret
                 }}/>
             </div>
+
+            {#if cheatsheetOverlayActive}
+                <div id="cheatsheet-overlay">
+                    <h1>Cheatsheet</h1>
+                    <h2>Legend of commands</h2>
+
+                    <pre>
+                        <code>
+Character        Meaning
+`F`	         Move forward by line length drawing a line
+`f`	         Move forward by line length without drawing a line
+`+`	         Turn left by turning angle
+`-`	         Turn right by turning angle
+`[`	         Push current drawing state onto stack
+`]`	         Pop current drawing state from the stack
+`&gt;`	         Multiply the line length by the line length scale factor
+`&lt;`	         Divide the line length by the line length scale factor
+                </code>
+                    </pre>
+                </div>
+            {/if}
 
             <div class="configuration" style="grid-area: s" transition:blur>
                 <fieldset id="parameters">
@@ -78,7 +111,9 @@
                       these symbols are called constants or terminals. (See Law of identity).
 
                     -->
-                    <label for="rules">Rules</label>
+                    <label for="rules">Rules
+                        <button onclick={toggleCheatsheet}>(?)</button>
+                    </label>
                     <div>
                         {#each rules as rule, index}
                             <div class="rule">
@@ -128,6 +163,17 @@
         grid-template:
                 "r r" 1fr
                 "s s" auto;
+    }
+
+    #cheatsheet-overlay {
+        background: rgba(9, 8, 8, 0.74);
+        border-radius: 6px;
+        padding: 8px;
+        position: absolute;
+        top: 16px;
+        left: 16px;
+        width: calc(100vw - 32px);
+        height: calc(100vh - 32px);
     }
 
     .configuration {
