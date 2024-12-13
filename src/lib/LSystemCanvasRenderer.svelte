@@ -27,7 +27,7 @@
         return maxDepth
     }
 
-    function initRenderState(ctx: CanvasRenderingContext2D, parameters: { length: number }, lsystem: string) {
+    function initRender(ctx: CanvasRenderingContext2D, parameters: { length: number }, lsystem: string) {
         return {
             index: 0,
             turtle: new Turtle(ctx, ctx.canvas.width / 2 + startPos.x, ctx.canvas.height - 16 + startPos.y),
@@ -42,7 +42,7 @@
     function processBatch(state: RenderState, lSystem: string, parameters: {
         length: number
     }, startTime: number): boolean {
-        const TIME_BUDGET_IN_MS = 12;
+        const TIME_BUDGET_IN_MS = 16;
 
         while (state.index < lsystem.length) {
             if (Date.now() - startTime > TIME_BUDGET_IN_MS) {
@@ -53,11 +53,9 @@
 
             switch (instruction) {
                 case 'F':
-                    state.turtle.setColor(parameters.color);
                     state.turtle.forward(state.stepSize);
                     break;
                 case 'f':
-                    state.turtle.setColor(parameters.color);
                     state.turtle.penUp();
                     state.turtle.forward(state.stepSize);
                     state.turtle.penDown();
@@ -86,7 +84,6 @@
 
             if (parameters.secret !== "") {
                 eval(parameters.secret);
-                console.debug(state.metrics);
             }
 
             state.index++;
@@ -94,16 +91,18 @@
         return true;
     }
 
+
     let canvas: HTMLCanvasElement | undefined = $state()
     let {lsystem, parameters} = $props()
     let startPos = $state({x: 0, y: 0})
     let dragging = $state(false)
     let renderState = $state<RenderState | null>(null)
 
-    let isRendering = false;
+
+    let renderLoopStarted = false;
     function setupRenderLoop(ctx: CanvasRenderingContext2D) {
-        if (isRendering) return;
-        isRendering = true;
+        if (renderLoopStarted) return;
+        renderLoopStarted = true;
         function renderLoop() {
             requestAnimationFrame(renderLoop)
             if (!renderState) return;
@@ -111,6 +110,8 @@
             if (renderState.index === 0) {
                 ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height)
             }
+
+            console.log(lsystem)
 
             processBatch(renderState, lsystem, parameters, Date.now())
         }
@@ -122,12 +123,18 @@
         if (!canvas) return;
 
         const ctx: CanvasRenderingContext2D = canvas.getContext('2d')!
-
         const container = canvas.parentElement
+
         const setSize = () => {
             canvas.width = container.clientWidth
             canvas.height = container.clientHeight - 8
+
+            // trigger a re-render when the size changes
+            renderState = initRender(canvas.getContext('2d')!, parameters, lsystem)
         }
+
+        canvas.parentElement.addEventListener("resize", setSize)
+        canvas.addEventListener("resize", setSize)
 
         setSize()
 
@@ -137,7 +144,7 @@
     $effect(() => {
         if (!canvas) return;
 
-        renderState = initRenderState(canvas.getContext('2d')!, parameters, lsystem)
+        renderState = initRender(canvas.getContext('2d')!, parameters, lsystem)
     });
 </script>
 

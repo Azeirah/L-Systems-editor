@@ -48,5 +48,17 @@ export const examples: Record<string, LSystemGrammar & LSystemRenderParameters> 
         iterations: 4,
         length_factor: 1,
         length: 4
+    },
+    "feather star (sea creature)": {
+       root: "+B+B+B+B+B+B+B+B+B+B",
+        rules: [
+            ["B", "Fa"],
+            ["a", "YFX[+Y][-Y]"],
+            ["Y", "YFX[+Y][-Y]"],
+        ],
+        angle: 36,
+        iterations: 4,
+        length: 4,
+        length_factor: 1
     }
 }
