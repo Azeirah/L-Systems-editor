@@ -46,7 +46,7 @@
                     secret
                 }}/>
             </div>
-            <LSystemTimeline lsystemDefinition={lsystemDefinition} lsystemEvaluation={evaluation}/>
+            <LSystemTimeline lsystemEvaluation={evaluation}/>
 
             <div class="configuration" style="grid-area: s" transition:blur>
                 <fieldset id="parameters">
