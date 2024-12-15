@@ -1,24 +1,28 @@
 <script lang="ts">
     import {blur} from "svelte/transition";
-    import {deriveIterations} from "./lib/LSystem";
+    import {evaluateLSystem} from "./lib/LSystem";
 
     import WelcomeScreen from "./lib/WelcomeScreen.svelte";
     import LSystemCanvasRenderer from "./lib/LSystemCanvasRenderer.svelte";
     import {examples} from "./lsystem_examples";
-
+    import LSystemTimeline from "./lib/LSystemTimeline.svelte";
+    import type {LSystemGrammar} from "./types/LSystems";
 
     let lsystemDefinition: LSystemGrammar = $state({
         root: "-X",
         rules: [["F", "FF"], ["X", "F+[[X]-X]-F[-FX]+X"]],
-        iterations: 4
     })
 
-    let angle = $state(15)
-    let length = $state(4)
-    let length_factor = $state(1)
-    let color = $state("black")
+    let iterations = $state(4)
 
-    let result = $derived(deriveIterations(lsystemDefinition))
+    let lSystemRenderParameters = $state({
+        angle: 15,
+        length: 4,
+        length_factor: 1,
+        color: "black"
+    })
+
+    let result = $derived(evaluateLSystem({...lsystemDefinition, iterations}))
 
     let secret = $state("")
 
@@ -38,10 +42,7 @@
         <div class="editor">
             <div style="grid-area: r">
                 <LSystemCanvasRenderer lsystem={result[result.length - 1]} parameters={{
-                    angle,
-                    length,
-                    length_factor,
-                    color,
+                    ...lSystemRenderParameters,
                     secret
                 }}/>
             </div>
@@ -50,13 +51,13 @@
                 <fieldset id="parameters">
                     <legend>Drawing parameters</legend>
                     <label for="angle">Angle</label>
-                    <input type="number" id="angle" bind:value={angle}>
+                    <input type="number" id="angle" bind:value={lSystemRenderParameters.angle}>
                     <label for="length">Length</label>
-                    <input type="number" id="length" bind:value={length} min="1" step="1" max="10">
+                    <input type="number" id="length" bind:value={lSystemRenderParameters.length} min="1" step="1" max="10">
                     <label for="length_factor">Length factor</label>
-                    <input type="number" id="length_factor" bind:value={length_factor} min="1" max="2" step="0.01">
+                    <input type="number" id="length_factor" bind:value={lSystemRenderParameters.length_factor} min="1" max="2" step="0.01">
                     <label for="secret">Secret</label>
-                    <textarea type="text" id="secret" bind:value={secret}></textarea>
+                    <textarea id="secret" bind:value={secret}></textarea>
                 </fieldset>
 
                 <fieldset id="definition">
@@ -107,11 +108,12 @@
 
                         lsystemDefinition.rules = config.rules
                         lsystemDefinition.root = config.root
-                        lsystemDefinition.iteration = config.iterations
+                        lsystemDefinition.iterations = config.iterations
 
-                        angle = config.angle
-                        length = config.length
-                        length_factor = config.length_factor
+                        lSystemRenderParameters.length = config.length
+                        lSystemRenderParameters.length_factor = config.length_factor
+                        lSystemRenderParameters.angle = config.angle
+                        lSystemRenderParameters.color = config.color
                     }}>
                         {#each Object.entries(examples) as [name, config], index}
                             <option value={name}>{name}</option>
