@@ -1,5 +1,5 @@
-type predecessor = string;
-type successor = string;
+export type predecessor = string;
+export type successor = string;
 
 export interface LSystemGrammar {
     root: string;
