@@ -1,146 +1,137 @@
 <script lang="ts">
     import {Turtle} from "./Turtle"
+    import {inspectorState, lSystemRenderParameters} from "../lsystemState.svelte";
+    import {Ticker} from "../drawingLib/Ticker";
+    import {EntityPool, RenderEngine} from "../drawingLib/EntityPool";
 
-    type RenderState = {
-        index: number;
-        turtle: Turtle;
-        stepSize: number;
-        metrics: {
-            depth: number;
-            maxDepth: number;
-        }
-    };
+    let {lsystem} = $props()
 
-    function getMaxDepth(str) {
-        let depth = 0
-        let maxDepth = 0
-
-        for (let char of str) {
-            if (char === '[') {
-                depth++
-                maxDepth = Math.max(maxDepth, depth)
-            } else if (char === ']') {
-                depth--
-            }
-        }
-        return maxDepth
-    }
-
-    function initRender(ctx: CanvasRenderingContext2D, parameters: { length: number }, lsystem: string) {
-        return {
-            index: 0,
-            turtle: new Turtle(ctx, ctx.canvas.width / 2 + startPos.x, ctx.canvas.height - 16 + startPos.y),
-            stepSize: parameters.length,
-            metrics: {
-                depth: 0,
-                maxDepth: getMaxDepth(lsystem)
-            }
-        }
-    }
-
-    function processBatch(state: RenderState, lSystem: string, parameters: {
-        length: number
-    }, startTime: number): boolean {
-        const TIME_BUDGET_IN_MS = 16;
-
-        while (state.index < lsystem.length) {
-            if (Date.now() - startTime > TIME_BUDGET_IN_MS) {
-                return false;
-            }
-
-            const instruction = lsystem[state.index];
-
-            switch (instruction) {
-                case 'F':
-                    state.turtle.forward(state.stepSize);
-                    break;
-                case 'f':
-                    state.turtle.penUp();
-                    state.turtle.forward(state.stepSize);
-                    state.turtle.penDown();
-                    break;
-                case '-':
-                    state.turtle.right(parameters.angle);
-                    break;
-                case '+':
-                    state.turtle.left(parameters.angle);
-                    break;
-                case '[':
-                    state.metrics.depth += 1;
-                    state.turtle.push();
-                    break;
-                case ']':
-                    state.metrics.depth -= 1;
-                    state.turtle.pop();
-                    break;
-                case '>':
-                    state.stepSize *= parameters.length_factor;
-                    break;
-                case '<':
-                    state.stepSize /= parameters.length_factor;
-                    break;
-            }
-
-            if (parameters.secret !== "") {
-                eval(parameters.secret);
-            }
-
-            state.index++;
-        }
-        return true;
-    }
-
-    let canvas: HTMLCanvasElement | undefined = $state()
-    let {lsystem, parameters} = $props()
+    let ctx: CanvasRenderingContext2D | null = $state(null)
     let startPos = $state({x: 0, y: 0})
     let dragging = $state(false)
-    let renderState = $state<RenderState | null>(null)
 
-    let renderLoopStarted = false;
-    function setupRenderLoop(ctx: CanvasRenderingContext2D) {
-        if (renderLoopStarted) return;
-        renderLoopStarted = true;
-        function renderLoop() {
-            requestAnimationFrame(renderLoop)
-            if (!renderState) return;
+    class LSystemRenderer {
+        private index = 0
+        private turtle = new Turtle()
+        private metrics: {depth: number, maxDepth: number} = {
+            depth: 0,
+            maxDepth: 0
+        };
+        private stepSize: number = 0
+        private startX
+        private startY
 
-            if (renderState.index === 0) {
-                ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height)
-            }
+        constructor(lsystem, parameters, evaluationIndex, startX, startY) {
+            this.metrics.maxDepth = this.calculateMaxDepth(lsystem)
+            this.stepSize = parameters.length
+            this.parameters = parameters
+            this.evaluationIndex = evaluationIndex
 
-            processBatch(renderState, lsystem, parameters, Date.now())
+            this.startX = startX
+            this.startY = startY
         }
 
-        renderLoop()
+        private calculateMaxDepth(str) {
+            let depth = 0
+            let maxDepth = 0
+
+            for (let char of str) {
+                if (char === '[') {
+                    depth++
+                    maxDepth = Math.max(maxDepth, depth)
+                } else if (char === ']') {
+                    depth--
+                }
+            }
+            return maxDepth
+        }
+
+        render(ctx) {
+            if (!this.turtle.initialized()) {
+                ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height)
+                this.turtle.initialize(ctx, ctx.canvas.width / 2 + this.startX, ctx.canvas.height - 16 + this.startY)
+            }
+
+            const TIME_BUDGET_IN_MS = 16;
+
+            const startTime = Date.now()
+            while (this.index < this.evaluationIndex) {
+                if (Date.now() - startTime > TIME_BUDGET_IN_MS) return;
+
+                const instruction = lsystem[this.index];
+
+                switch (instruction) {
+                    case 'F':
+                        this.turtle.forward(this.stepSize);
+                        break;
+                    case 'f':
+                        this.turtle.penUp();
+                        this.turtle.forward(this.stepSize);
+                        this.turtle.penDown();
+                        break;
+                    case '-':
+                        this.turtle.right(this.parameters.angle);
+                        break;
+                    case '+':
+                        this.turtle.left(this.parameters.angle);
+                        break;
+                    case '[':
+                        this.metrics.depth += 1;
+                        this.turtle.push();
+                        break;
+                    case ']':
+                        this.metrics.depth -= 1;
+                        this.turtle.pop();
+                        break;
+                    case '>':
+                        this.stepSize *= this.length_factor;
+                        break;
+                    case '<':
+                        this.stepSize /= this.length_factor;
+                        break;
+                }
+
+                if (this.secret !== "") {
+                    eval(this.parameters.secret);
+                }
+
+                this.index++;
+            }
+
+        }
     }
 
-    $effect(() => {
-        if (!canvas) return;
+    const engine = new RenderEngine(function (dt: number, ticker: Ticker, pool: EntityPool) {
+        if (!ctx) return;
 
-        const ctx: CanvasRenderingContext2D = canvas.getContext('2d')!
+        ticker.onTick(dt)
+
+        pool.update(dt)
+        pool.render(ctx)
+    })
+
+
+
+    function initRender(canvas: HTMLCanvasElement) {
+        ctx = canvas.getContext('2d')
+
         const container = canvas.parentElement
 
         const setSize = () => {
             canvas.width = container.clientWidth
             canvas.height = container.clientHeight - 8
-
-            // trigger a re-render when the size changes
-            renderState = initRender(canvas.getContext('2d')!, parameters, lsystem)
         }
 
-        canvas.parentElement.addEventListener("resize", setSize)
-        canvas.addEventListener("resize", setSize)
-
         setSize()
-
-        setupRenderLoop(ctx)
-    })
+    }
 
     $effect(() => {
-        if (!canvas) return;
+        engine.entityPool.deleteGroup("lsystem")
 
-        renderState = initRender(canvas.getContext('2d')!, parameters, lsystem)
-    });
+        const renderer = new LSystemRenderer(lsystem, lSystemRenderParameters, inspectorState.evaluationIndex, startPos.x, startPos.y)
+
+        engine.entityPool.add("lsystem", renderer)
+    })
 </script>
 
 <svelte:window onmousemove={(e) => {
@@ -150,7 +141,7 @@
     }
 }}></svelte:window>
 
-<canvas data-testid="l-systems-canvas-renderer" bind:this={canvas} onmousedown={(e) => dragging = true}
+<canvas data-testid="l-systems-canvas-renderer" use:initRender onmousedown={(e) => dragging = true}
         onmouseup={(e) => dragging = false}></canvas>
 
 <style>

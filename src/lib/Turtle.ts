@@ -1,24 +1,10 @@
 export class Turtle {
-    private ctx: CanvasRenderingContext2D;
+    private ctx: CanvasRenderingContext2D | null;
     private x: number;
     private y: number;
-    private angle: number;
-    private penState: boolean = false;
+    private angle: number = -90;
+    private penState: boolean = true;
     private memory: { x: number, y: number, angle: number }[] = [];
-
-
-    constructor(ctx: CanvasRenderingContext2D, startX: number, startY: number) {
-        this.ctx = ctx;
-        this.x = startX;
-        this.y = startY;
-        this.angle = -90;
-        this.penState = true;
-        this.ctx.lineWidth = 1;
-        this.ctx.strokeStyle = '#000000';
-
-        // Start position
-        this.ctx.moveTo(this.x, this.y);
-    }
 
     readDepth() {
         return this.memory.length;
@@ -84,5 +70,21 @@ export class Turtle {
     // Set the pen width
     setWidth(width: number) {
         this.ctx.lineWidth = width;
+    }
+
+    initialized() {
+        return this.ctx != null
+    }
+
+    initialize(ctx, startX, startY) {
+        this.ctx = ctx;
+        this.x = startX
+        this.y = startY
+
+        this.ctx.lineWidth = 1;
+        this.ctx.strokeStyle = '#000000';
+
+        // Start position
+        this.ctx.moveTo(this.x, this.y);
     }
 }

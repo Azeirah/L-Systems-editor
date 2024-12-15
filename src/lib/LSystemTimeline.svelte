@@ -7,8 +7,9 @@
     import {zoom, zoomIdentity, ZoomTransform} from "d3-zoom";
     import {select, pointer} from "d3-selection";
     import {drag} from "d3-drag";
+    import {inspectorState} from "../lsystemState.svelte.js";
 
-    const {lsystemEvaluation} = $props();
+    let {lsystemEvaluation} = $props();
 
     const TRACK_HEIGHT = 28;
     const MARGIN = { left: 50, right: 20 };
@@ -17,7 +18,6 @@
     let width = $state(0);
     let height = $state(0);
     let transform = $state(zoomIdentity);
-    let currentTime = $state(0);
     let baseScale: ScaleLinear<number, number> = $state(null);
     let zoomedScale: ScaleLinear<number, number> = $state(null);
 
@@ -103,7 +103,7 @@
         if (!zoomedScale) return;
 
         const time = Math.round(zoomedScale.invert(screenX));
-        currentTime = Math.max(0, Math.min(timelineData.totalTime, time));
+        inspectorState.evaluationIndex = Math.max(0, Math.min(timelineData.totalTime, time));
     }
 
     const setupInteractions: Action<SVGSVGElement> = (node) => {
@@ -153,8 +153,6 @@
             };
         });
     };
-
-    $inspect({width, currentTime, transform})
 </script>
 
 <svelte:window bind:innerWidth={width}/>
@@ -208,14 +206,14 @@
                                 cy={TRACK_HEIGHT/2}
                                 r="4"
                                 fill={colorScale(track.symbol)}
-                                style:opacity={event.time <= currentTime ? "1" : "0.3"}
+                                style:opacity={event.time <= inspectorState.evaluationIndex ? "1" : "0.3"}
                         />
                     {/each}
                 </g>
             {/each}
 
             {#if zoomedScale}
-                <g class="timeline-pointer" style:transform={`translateX(${getEventX(currentTime)}px)`}>
+                <g class="timeline-pointer" style:transform={`translateX(${getEventX(inspectorState.evaluationIndex)}px)`}>
                     <line
                             x1="0"
                             y1="0"
@@ -233,7 +231,7 @@
             {/if}
         </g>
     </svg>
-    {currentTime} / {timelineData.totalTime}
+    {inspectorState.evaluationIndex} / {timelineData.totalTime}
 </div>
 
 <style>

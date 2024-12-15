@@ -6,23 +6,13 @@
     import LSystemCanvasRenderer from "./lib/LSystemCanvasRenderer.svelte";
     import {examples} from "./lsystem_examples";
     import LSystemTimeline from "./lib/LSystemTimeline.svelte";
-    import type {LSystemGrammar} from "./types/LSystems";
+    import {
+        evaluationParameters,
+        lsystemDefinition,
+        lSystemRenderParameters,
+    } from "./lsystemState.svelte.js";
 
-    let lsystemDefinition: LSystemGrammar = $state({
-        root: "-X",
-        rules: [["F", "FF"], ["X", "F+[[X]-X]-F[-FX]+X"]],
-    })
-
-    let iterations = $state(4)
-
-    let lSystemRenderParameters = $state({
-        angle: 15,
-        length: 4,
-        length_factor: 1,
-        color: "black"
-    })
-
-    let evaluation = $derived(evaluateLSystem({...lsystemDefinition, iterations}))
+    let evaluation = $derived(evaluateLSystem({...lsystemDefinition, iterations: evaluationParameters.iterations}))
 
     let secret = $state("")
 
@@ -46,7 +36,7 @@
                     secret
                 }}/>
             </div>
-            <LSystemTimeline lsystemEvaluation={evaluation}/>
+            <LSystemTimeline lsystemEvaluation={evaluation} />
 
             <div class="configuration" style="grid-area: s" transition:blur>
                 <fieldset id="parameters">
@@ -65,7 +55,7 @@
                     <legend>L-System</legend>
 
                     <label for="iterations">Iterations</label>
-                    <input type="number" name="iterations" id="iterations" min="1" bind:value={iterations}>
+                    <input type="number" name="iterations" id="iterations" min="1" bind:value={evaluationParameters.iterations}>
                     <!--
 
                     ω (start, axiom or initiator) is a string of symbols from V defining the initial state of the system
