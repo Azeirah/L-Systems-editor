@@ -2,7 +2,26 @@ import type {LSystemGrammar} from "../types/LSystems";
 
 export const commands = "Ff+-[]><"
 
-export function evaluateLSystem({root, iterations, rules}: LSystemGrammar): string[] {
+function alphabet(lsystemDefinition) {
+    let alphabet = new Set()
+
+    for (let symbol of lsystemDefinition.root) {
+        alphabet.add(symbol)
+    }
+
+    for (let [predecessor, successor] of lsystemDefinition.rules) {
+        for (let symbol of predecessor) {
+            alphabet.add(symbol)
+        }
+        for (let symbol of successor) {
+            alphabet.add(symbol)
+        }
+    }
+
+    return Array.from(alphabet).join("")
+}
+
+export function evaluateLSystem({root, iterations, rules}: LSystemGrammar): {derivations: string[], alphabet: string} {
     const derivations: string[] = [];
     let accumulation = root;
 
@@ -15,5 +34,8 @@ export function evaluateLSystem({root, iterations, rules}: LSystemGrammar): stri
         derivations[i] = accumulation;
     }
 
-    return derivations;
+    return {
+        alphabet: alphabet({root, rules}),
+        derivations
+    };
 }

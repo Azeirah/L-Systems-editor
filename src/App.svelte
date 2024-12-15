@@ -22,7 +22,7 @@
         color: "black"
     })
 
-    let result = $derived(evaluateLSystem({...lsystemDefinition, iterations}))
+    let {derivations, alphabet} = $derived(evaluateLSystem({...lsystemDefinition, iterations}))
 
     let secret = $state("")
 
@@ -34,6 +34,7 @@
 }} />
 
 <main>
+    <LSystemTimeline lsystemDefinition={lsystemDefinition} lsystemEvaluation={derivations}/>
     {#if onSplash}
         <div transition:blur>
             <WelcomeScreen/>
@@ -41,7 +42,7 @@
     {:else}
         <div class="editor">
             <div style="grid-area: r">
-                <LSystemCanvasRenderer lsystem={result[result.length - 1]} parameters={{
+                <LSystemCanvasRenderer lsystem={derivations[derivations.length - 1]} parameters={{
                     ...lSystemRenderParameters,
                     secret
                 }}/>
@@ -64,7 +65,7 @@
                     <legend>L-System</legend>
 
                     <label for="iterations">Iterations</label>
-                    <input type="number" name="iterations" id="iterations" bind:value={lsystemDefinition.iterations}>
+                    <input type="number" name="iterations" id="iterations" bind:value={iterations}>
                     <!--
 
                     ω (start, axiom or initiator) is a string of symbols from V defining the initial state of the system
