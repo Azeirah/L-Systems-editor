@@ -22,7 +22,8 @@
         color: "black"
     })
 
-    let {derivations, alphabet} = $derived(evaluateLSystem({...lsystemDefinition, iterations}))
+    let evaluation = $derived(evaluateLSystem({...lsystemDefinition, iterations}))
+    let {derivations} = evaluation
 
     let secret = $state("")
 
@@ -34,7 +35,7 @@
 }} />
 
 <main>
-    <LSystemTimeline lsystemDefinition={lsystemDefinition} lsystemEvaluation={derivations}/>
+    <LSystemTimeline lsystemDefinition={lsystemDefinition} lsystemEvaluation={evaluation}/>
     {#if onSplash}
         <div transition:blur>
             <WelcomeScreen/>
