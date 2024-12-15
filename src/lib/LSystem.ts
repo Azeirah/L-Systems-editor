@@ -1,4 +1,4 @@
-import type {LSystemGrammar} from "../types/LSystems";
+import type {LSystemEvaluation, LSystemGrammar} from "../types/LSystems";
 
 export const commands = "Ff+-[]><"
 
@@ -21,7 +21,7 @@ function alphabet(lsystemDefinition) {
     return Array.from(alphabet).join("")
 }
 
-export function evaluateLSystem({root, iterations, rules}: LSystemGrammar): {derivations: string[], alphabet: string} {
+export function evaluateLSystem({root, iterations, rules}: LSystemGrammar): LSystemEvaluation {
     const derivations: string[] = [];
     let accumulation = root;
 

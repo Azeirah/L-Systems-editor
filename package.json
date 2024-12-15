@@ -22,7 +22,11 @@
   },
   "dependencies": {
     "@codemirror/lang-javascript": "^6.2.2",
-    "svelte-codemirror-editor": "^1.4.1",
-    "@playwright/test": "1.47.0"
+    "@playwright/test": "1.47.0",
+    "@types/d3-scale": "^4.0.8",
+    "@types/d3-scale-chromatic": "^3.1.0",
+    "d3-scale": "^4.0.2",
+    "d3-scale-chromatic": "^3.1.0",
+    "svelte-codemirror-editor": "^1.4.1"
   }
 }

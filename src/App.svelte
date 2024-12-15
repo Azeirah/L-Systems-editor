@@ -23,7 +23,6 @@
     })
 
     let evaluation = $derived(evaluateLSystem({...lsystemDefinition, iterations}))
-    let {derivations} = evaluation
 
     let secret = $state("")
 
@@ -35,7 +34,6 @@
 }} />
 
 <main>
-    <LSystemTimeline lsystemDefinition={lsystemDefinition} lsystemEvaluation={evaluation}/>
     {#if onSplash}
         <div transition:blur>
             <WelcomeScreen/>
@@ -43,11 +41,12 @@
     {:else}
         <div class="editor">
             <div style="grid-area: r">
-                <LSystemCanvasRenderer lsystem={derivations[derivations.length - 1]} parameters={{
+                <LSystemCanvasRenderer lsystem={evaluation.derivations[evaluation.derivations.length - 1]} parameters={{
                     ...lSystemRenderParameters,
                     secret
                 }}/>
             </div>
+            <LSystemTimeline lsystemDefinition={lsystemDefinition} lsystemEvaluation={evaluation}/>
 
             <div class="configuration" style="grid-area: s" transition:blur>
                 <fieldset id="parameters">

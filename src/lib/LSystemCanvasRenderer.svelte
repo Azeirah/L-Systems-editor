@@ -11,7 +11,6 @@
         }
     };
 
-
     function getMaxDepth(str) {
         let depth = 0
         let maxDepth = 0
@@ -91,13 +90,11 @@
         return true;
     }
 
-
     let canvas: HTMLCanvasElement | undefined = $state()
     let {lsystem, parameters} = $props()
     let startPos = $state({x: 0, y: 0})
     let dragging = $state(false)
     let renderState = $state<RenderState | null>(null)
-
 
     let renderLoopStarted = false;
     function setupRenderLoop(ctx: CanvasRenderingContext2D) {
@@ -110,8 +107,6 @@
             if (renderState.index === 0) {
                 ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height)
             }
-
-            console.log(lsystem)
 
             processBatch(renderState, lsystem, parameters, Date.now())
         }
