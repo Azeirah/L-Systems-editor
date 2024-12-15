@@ -4,7 +4,7 @@
     import {Ticker} from "../drawingLib/Ticker";
     import {EntityPool, RenderEngine} from "../drawingLib/EntityPool";
 
-    let {lsystem} = $props()
+    let {lsystem, dragHandlePosition} = $props()
 
     let ctx: CanvasRenderingContext2D | null = $state(null)
     let startPos = $state({x: 0, y: 0})
@@ -55,7 +55,7 @@
             const TIME_BUDGET_IN_MS = 16;
 
             const startTime = Date.now()
-            while (this.index < this.evaluationIndex) {
+            while (this.index < dragHandlePosition) {
                 if (Date.now() - startTime > TIME_BUDGET_IN_MS) return;
 
                 const instruction = lsystem[this.index];
@@ -91,10 +91,6 @@
                         break;
                 }
 
-                if (this.secret !== "") {
-                    eval(this.parameters.secret);
-                }
-
                 this.index++;
             }
 
@@ -109,8 +105,6 @@
         pool.update(dt)
         pool.render(ctx)
     })
-
-
 
     function initRender(canvas: HTMLCanvasElement) {
         ctx = canvas.getContext('2d')

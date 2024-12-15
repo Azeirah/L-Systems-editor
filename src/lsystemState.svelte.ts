@@ -4,10 +4,8 @@ export let lsystemDefinition: LSystemGrammar = $state({
     root: "-X",
     rules: [["F", "FF"], ["X", "F+[[X]-X]-F[-FX]+X"]],
 })
-
-
-export let inspectorState = $state({
-    evaluationIndex: 0
+export let inspectorState: {evaluationIndex: null | number} = $state({
+    evaluationIndex: null
 })
 export let lSystemRenderParameters = $state({
     angle: 15,

@@ -8,15 +8,21 @@
     import LSystemTimeline from "./lib/LSystemTimeline.svelte";
     import {
         evaluationParameters,
+        inspectorState,
         lsystemDefinition,
         lSystemRenderParameters,
     } from "./lsystemState.svelte.js";
 
     let evaluation = $derived(evaluateLSystem({...lsystemDefinition, iterations: evaluationParameters.iterations}))
+    let dragHandlePosition = $derived(inspectorState.evaluationIndex ?? evaluation.derivations[evaluation.derivations.length - 1].length)
 
-    let secret = $state("")
+    $effect(() => {
+        lsystemDefinition
+        evaluationParameters.iterations
+        inspectorState.evaluationIndex = null
+    })
 
-    let onSplash = $state(false)
+    let onSplash = $state(true)
 </script>
 
 <svelte:window onclick={() => {
@@ -31,12 +37,11 @@
     {:else}
         <div class="editor">
             <div style="grid-area: r">
-                <LSystemCanvasRenderer lsystem={evaluation.derivations[evaluation.derivations.length - 1]} parameters={{
-                    ...lSystemRenderParameters,
-                    secret
-                }}/>
+                <LSystemCanvasRenderer lsystem={evaluation.derivations[evaluation.derivations.length - 1]} parameters={
+                    lSystemRenderParameters
+                } dragHandlePosition={dragHandlePosition}/>
             </div>
-            <LSystemTimeline lsystemEvaluation={evaluation} />
+            <LSystemTimeline lsystemEvaluation={evaluation} dragHandlePosition={dragHandlePosition} />
 
             <div class="configuration" style="grid-area: s" transition:blur>
                 <fieldset id="parameters">
@@ -47,8 +52,6 @@
                     <input type="number" id="length" bind:value={lSystemRenderParameters.length} min="1" step="1" max="10">
                     <label for="length_factor">Length factor</label>
                     <input type="number" id="length_factor" bind:value={lSystemRenderParameters.length_factor} min="1" max="2" step="0.01">
-                    <label for="secret">Secret</label>
-                    <textarea id="secret" bind:value={secret}></textarea>
                 </fieldset>
 
                 <fieldset id="definition">

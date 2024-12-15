@@ -9,7 +9,7 @@
     import {drag} from "d3-drag";
     import {inspectorState} from "../lsystemState.svelte.js";
 
-    let {lsystemEvaluation} = $props();
+    let {lsystemEvaluation, dragHandlePosition} = $props();
 
     const TRACK_HEIGHT = 28;
     const MARGIN = { left: 50, right: 20 };
@@ -53,22 +53,20 @@
 
         let globalTime = 0;
 
-        // Process each derivation
-        evaluation.derivations.forEach((derivation, derivationIndex) => {
-            // Process each symbol in the current derivation
-            derivation.split('').forEach((symbol, positionIndex) => {
-                const trackIndex = trackIndices.get(symbol);
+        const lastDerivation = evaluation.derivations[evaluation.derivations.length - 1]
 
-                const event: TimelineEvent = {
-                    symbol,
-                    time: globalTime,
-                    derivation: derivationIndex,
-                    position: positionIndex
-                };
+        // Process each symbol in the current derivation
+        lastDerivation.split('').forEach((symbol, positionIndex) => {
+            const trackIndex = trackIndices.get(symbol);
 
-                tracks[trackIndex].events.push(event);
-                globalTime++;
-            });
+            const event: TimelineEvent = {
+                symbol,
+                time: globalTime,
+                position: positionIndex
+            };
+
+            tracks[trackIndex].events.push(event);
+            globalTime++;
         });
 
         return {
@@ -206,14 +204,14 @@
                                 cy={TRACK_HEIGHT/2}
                                 r="4"
                                 fill={colorScale(track.symbol)}
-                                style:opacity={event.time <= inspectorState.evaluationIndex ? "1" : "0.3"}
+                                style:opacity={event.time <= dragHandlePosition ? "1" : "0.3"}
                         />
                     {/each}
                 </g>
             {/each}
 
             {#if zoomedScale}
-                <g class="timeline-pointer" style:transform={`translateX(${getEventX(inspectorState.evaluationIndex)}px)`}>
+                <g class="timeline-pointer" style:transform={`translateX(${getEventX(dragHandlePosition)}px)`}>
                     <line
                             x1="0"
                             y1="0"
@@ -231,7 +229,7 @@
             {/if}
         </g>
     </svg>
-    {inspectorState.evaluationIndex} / {timelineData.totalTime}
+    {dragHandlePosition} / {timelineData.totalTime}
 </div>
 
 <style>
