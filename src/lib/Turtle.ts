@@ -4,7 +4,7 @@ export class Turtle {
     private y: number;
     private angle: number = -90;
     private penState: boolean = true;
-    private memory: { x: number, y: number, angle: number }[] = [];
+    private memory: { x: number, y: number, angle: number, stepSize: number }[] = [];
 
     readDepth() {
         return this.memory.length;
@@ -40,21 +40,22 @@ export class Turtle {
         this.penState = false;
     }
 
-    push() {
-        this.memory.push({x: this.x, y: this.y, angle: this.angle})
+    push(stepSize) {
+        this.memory.push({x: this.x, y: this.y, angle: this.angle, stepSize})
     }
 
     pop() {
         if (this.memory.length === 0) {
             throw new Error("Unbalanced stack!")
         }
-        const {x, y, angle} = this.memory.pop()!
+        const {x, y, angle, stepSize} = this.memory.pop()!
 
         this.x = x
         this.y = y
         this.angle = angle
 
         this.ctx.moveTo(this.x, this.y)
+        return stepSize
     }
 
     // Put the pen down (start drawing)

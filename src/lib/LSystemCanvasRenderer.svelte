@@ -77,17 +77,17 @@
                         break;
                     case '[':
                         this.metrics.depth += 1;
-                        this.turtle.push();
+                        this.turtle.push(this.stepSize);
                         break;
                     case ']':
                         this.metrics.depth -= 1;
-                        this.turtle.pop();
+                        this.stepSize = this.turtle.pop();
                         break;
                     case '>':
-                        this.stepSize *= this.length_factor;
+                        this.stepSize *= this.parameters.length_factor;
                         break;
                     case '<':
-                        this.stepSize /= this.length_factor;
+                        this.stepSize /= this.parameters.length_factor;
                         break;
                 }
 
@@ -122,6 +122,7 @@
     $effect(() => {
         engine.entityPool.deleteGroup("lsystem")
 
+        console.log($effect.tracking())
         const renderer = new LSystemRenderer(lsystem, lSystemRenderParameters, inspectorState.evaluationIndex, startPos.x, startPos.y)
 
         engine.entityPool.add("lsystem", renderer)
