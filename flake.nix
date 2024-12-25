@@ -8,12 +8,8 @@
 
   outputs = { self, nixpkgs, flake-utils }:
     flake-utils.lib.eachDefaultSystem (system:
-      let
-        pkgs = import nixpkgs {
-          inherit system;
-        };
-      in
-      {
+      let pkgs = import nixpkgs { inherit system; };
+      in {
         devShells.default = pkgs.mkShell {
           nativeBuildInputs = with pkgs; [
             playwright-driver.browsers
@@ -23,29 +19,28 @@
             nodejs_22
           ];
 
-          buildInputs = with pkgs; [
-            bun
-          ];
+          buildInputs = with pkgs; [ bun ];
 
-          PLAYWRIGHT_BROWSERS_PATH="${pkgs.playwright-driver.browsers}";
+          PLAYWRIGHT_BROWSERS_PATH = "${pkgs.playwright-driver.browsers}";
 
           shellHook = ''
-          echo "Welcome to the l-systems development environment!
+                      echo "Welcome to the l-systems development environment!
 
-For contact and questions
-- contact laura at mail@laura.fm
-- Or visit the github repository https://github.com/Azeirah/L-Systems-editor
+            First time?
+            - Don't forget to run 'bun install'
 
-Quick start tips
-- Run 'bun run dev' to get started with development
-- Testing
-  - Run 'bun run test' to run all tests
-  - Run 'bun run test:ui' to open the test UI
+            For contact and questions
+            - contact laura at mail@laura.fm
+            - Or visit the github repository https://github.com/Azeirah/L-Systems-editor
 
-First time?
-- Don't forget to run 'bun install'
+            Quick start tips
+            - Run 'bun run dev' to get started with development
+            - Testing
+              - Run 'bun run test' to run all tests
+              - Run 'bun run test:ui' to open the test UI
 
-Have fun with nature! :)";'';
+
+            Have fun with nature! :)";'';
         };
       });
 }
