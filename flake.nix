@@ -24,23 +24,26 @@
           PLAYWRIGHT_BROWSERS_PATH = "${pkgs.playwright-driver.browsers}";
 
           shellHook = ''
-                      echo "Welcome to the l-systems development environment!
+            ${pkgs.gum}/bin/gum format <<EOF
+            # Welcome to the L-systems development environment!
 
-            First time?
-            - Don't forget to run 'bun install'
+            Don't forget to run \`bun install\`
 
             For contact and questions
             - contact laura at mail@laura.fm
             - Or visit the github repository https://github.com/Azeirah/L-Systems-editor
 
-            Quick start tips
-            - Run 'bun run dev' to get started with development
-            - Testing
-              - Run 'bun run test' to run all tests
-              - Run 'bun run test:ui' to open the test UI
+            ## Quick start tips
 
+            - Run \`bun run dev\` to get started with development
 
-            Have fun with nature! :)";'';
+            ### Testing
+            - Run 'bun run test' to run all tests
+            - Run 'bun run test:ui' to open the test UI
+
+            Have fun with nature! :)
+            EOF
+          '';
         };
       });
 }
